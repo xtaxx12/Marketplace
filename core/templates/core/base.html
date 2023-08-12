@@ -28,15 +28,20 @@
                         <a class="nav-link" href="{% url 'item:items' %}">Browse</a>
                     </li>
                     {% if request.user.is_authenticated %}
-                    <li class="nav-item">
+                    
                         <a class="nav-link" href="{% url 'conversation:inbox' %}">Inbox</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'dashboard:index' %}" aria-disabled="true">Dashboard</a>
                     </li>
                     <li class="nav-item">
+                        <span class="nav-link activate" >User : {{user.username}}</span>
+                      </li>
+                    <li class="nav-item">
+                    <li class="nav-item">
                         <a class="btn btn-primary" href="{% url 'core:logout' %}" aria-disabled="true">Cerrar Sesion</a>
                     </li>
+                    
                     {% else %}
                     <li class="nav-item">
                         <a class="btn btn-success" href="{% url 'core:signup' %}">Sign up</a>
@@ -44,6 +49,7 @@
                     <li class="nav-item">
                         <a class="btn btn-primary ms-2" href="{% url 'core:login' %}">Log in</a>
                     </li>
+                    
                     {% endif %}
                 </ul>
             </div>
