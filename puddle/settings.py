@@ -24,8 +24,8 @@ SECRET_KEY = 'django-insecure-j4ippt+3h39u4ontllpc8a(4h&^god(7aicz#@q^sl_(w)2otp
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+" python manage.py runserver 0.0.0.0:8000"
+ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -129,6 +129,17 @@ USE_TZ = True
 STATIC_URL = 'static/'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+"agregar estas dos lineas para trabajar con el envio de correos"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+"esta es la configuracion que se usara para enviar el correo"
+EMAIL_USE_TLS = True
+"este es el puerto q usa tls"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "regaloyt334@gmail.com"
+EMAIL_HOST_PASSWORD = "dcwwvxklrlpmhors"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

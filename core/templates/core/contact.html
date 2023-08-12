@@ -1,7 +1,27 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}Contact{% endblock %}
-
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% block content %}
-    <h1>The contact page</h1>
+<div class="contact-container">
+    <h1>Contact Us</h1>
+    <p>Si tiene alguna pregunta o consulta, no dude en comunicarse con nosotros.</p>
+    <form class="contact-form" action="{% url 'core:enviar_correo' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="message" class="form-label">Message:</label>
+            <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+        </div>
+        <button class="btn btn-success" type="submit">Submit</button>
+    </form>
+</div>
 {% endblock %}

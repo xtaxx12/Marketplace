@@ -3,12 +3,14 @@
 {% block title %}Items{% endblock %}
 
 {% block content %}
-    <div class="pb-6 grid grid-cols-4 gap-4 bg-gray-100">
-        <div class="col-span-1">
+    <div class="pb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-100">
+        <div class="col-span-1 md:col-span-1 px-4">
             <form method="get" action="{% url 'item:items' %}">
+                <br>
                 <input name="query" class="w-full py-4 px-6 border rounded-xl" type="text" value="{{ query }}" placeholder="Find a bike, a chair or car...">
-
-                <button class="mt-2 py-4 px-8 text-lg bg-teal-500 text-white rounded-xl">Search</button>
+                <br>
+                <br>
+                <button class="btn btn-primary" >Search</button>
             </form>
 
             <hr class="my-6">
@@ -28,20 +30,22 @@
             <p class="font-semibold">Clear filters</p>
 
             <ul>
-                <li><a href="{% url 'item:items' %}" class="mt-2 py-4 px-8 inline-block bg-yellow-500 text-lg rounded-xl text-white">Clear</a>
+                <li><a href="{% url 'item:items' %}" class="mt-2 py-2 px-4 inline-block bg-yellow-500 text rounded-xl text-white">Clear</a></li>
+
+            </ul>
         </div>
 
-        <div class="col-span-3">
-            <div class="grid grid-cols-3 gap-3">
+        <div class="col-span-1 md:col-span-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {% for item in items %}
-                    <div>
+                    <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg">
                         <a href="{% url 'item:detail' item.id %}">
                             <div>
-                                <img src="{{ item.image.url }}" class="rounded-t-xl">
+                                <img src="{{ item.image.url }}" class="w-full h-40 object-cover object-center rounded-t-xl">
                             </div>
-    
-                            <div class="p-6 bg-white rounded-b-xl">
-                                <h2 class="text-2xl">{{ item.name }}</h2>
+
+                            <div class="p-4">
+                                <h2 class="text-xl font-semibold">{{ item.name }}</h2>
                                 <p class="text-gray-500">Price: {{ item.price }}$</p>
                             </div>
                         </a>

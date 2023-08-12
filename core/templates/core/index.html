@@ -3,19 +3,19 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-    <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-        <h2 class="mb-12 text-2xl text-center">Newest items</h2>
+    <div class="mt-6 px-4 lg:px-12 py-8 bg-gray-100 rounded-xl">
+        <h2 class="mb-6 text-2xl text-center">Newest items</h2>
 
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {% for item in items %}
-                <div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg">
                     <a href="{% url 'item:detail' item.id %}">
                         <div>
-                            <img src="{{ item.image.url }}" class="rounded-t-xl">
+                            <img src="{{ item.image.url }}" class="w-full h-40 object-cover object-center rounded-t-xl">
                         </div>
 
-                        <div class="p-6 bg-white rounded-b-xl">
-                            <h2 class="text-2xl">{{ item.name }}</h2>
+                        <div class="p-4">
+                            <h2 class="text-xl font-semibold">{{ item.name }}</h2>
                             <p class="text-gray-500">Price: {{ item.price }}$</p>
                         </div>
                     </a>
@@ -24,15 +24,15 @@
         </div>
     </div>
 
-    <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-        <h2 class="mb-12 text-2xl text-center">Categories</h2>
+    <div class="mt-6 px-4 lg:px-12 py-8 bg-gray-100 rounded-xl">
+        <h2 class="mb-6 text-2xl text-center">Categories</h2>
 
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {% for category in categories %}
-                <div>
-                    <a href="#">
-                        <div class="p-6 bg-white rounded-b-xl">
-                            <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}"><h2 class="text-2xl">{{ category.name }}</h2></a>
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg">
+                    <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}">
+                        <div class="p-4">
+                            <h2 class="text-xl font-semibold">{{ category.name }}</h2>
                             <p class="text-gray-500">{{ category.items.count }} items</p>
                         </div>
                     </a>

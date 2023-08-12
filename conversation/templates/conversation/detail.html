@@ -24,6 +24,6 @@
 <form method="post" action="." class="mt-6">
     {% csrf_token %}
     {{ form.as_p }}
-    <button class="py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">Send</button>
+    <button class="btn btn-success mt-6">Submit</button>
 </form>
 {% endblock %}
