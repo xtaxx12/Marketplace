@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-
-from item.models import Item
-
+from item.models import Category, Item
+from django.http import Http404
 from .forms import ConversationMessageForm
 from .models import Conversation
+from .models import Conversation, ConversationMessage
 
 @login_required
 def new_conversation(request, item_pk):
@@ -104,3 +104,4 @@ def eliminar_conversation(request):
         'conversation': conversation,
         'form': form
     })
+    

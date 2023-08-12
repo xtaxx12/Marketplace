@@ -4,6 +4,8 @@ from item.models import Category, Item
 
 from .forms import SignupForm
 
+from django.contrib.auth import logout
+
 def index(request):
     items = Item.objects.filter(is_sold=False)[0:6]
     categories = Category.objects.all()
@@ -29,4 +31,18 @@ def signup(request):
 
     return render(request, 'core/signup.html', {
         'form': form
+    })
+    
+    
+def logout_view(request):
+    """
+    Cierra la sesión del usuario y lo redirige a la página de inicio.
+    """
+    logout(request)
+    items = Item.objects.filter(is_sold=False)[0:6]
+    categories = Category.objects.all()
+
+    return render(request, 'core/index.html', {
+        'categories': categories,
+        'items': items,
     })
