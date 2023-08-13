@@ -1,23 +1,51 @@
 {% extends 'core/base.html' %}
-
+{% load static %}
 {% block title %}Conversation{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
 <h1 class="mb-6 text-3xl">Conversation</h1>
 
 <div class="space-y-6">
     {% if conversation.messages.all %}
         {% for message in conversation.messages.all %}
-            <div class="p-6 flex {% if message.created_by == request.user %}bg-blue-100{% else %}bg-gray-100{% endif %} rounded-xl">
+            <div class="p-6 flex justify-between {% if message.created_by == request.user %}bg-blue-100{% else %}bg-gray-100{% endif %} rounded-xl">
                 <div>
                     <p class="mb-4"><strong>{{ message.created_by.username }}</strong> @ {{ message.created_at }}</p>
                     <p>{{ message.content }}</p>
-                    <a href="{% url 'conversation:eliminar_conversation'%}">Eliminar Mensaje</a>
+                </div>
+               <!--boton para eliminar-->
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#eli{{conversation.id}}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+                <!--modal para borrar mensaje-->
+                <div class="modal" id="eli{{conversation.id}}" tabindex="-1" aria-labelledby="myModalLabel2" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Eliminar mensaje</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Está por eliminar este mensaje</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{% url 'conversation:eliminar_conversation' conversation.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-primary" value="Eliminar">
+                                </form>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         {% endfor %}
     {% else %}
         <p>No hay mensajes en esta conversación.</p>
+          
     {% endif %}
 </div>
 
@@ -26,5 +54,5 @@
     {{ form.as_p }}
     <button class="btn btn-success mt-6">Submit</button>
 </form>
-{% endblock %}
 
+{% endblock %}

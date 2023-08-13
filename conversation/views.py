@@ -73,10 +73,11 @@ def detail(request, pk):
     })
     
 
-def eliminar_conversation(request):
+
+
+def eliminar_conversation(request,conversation_id):
     # Obtener la conversación del usuario actual
-    conversation = get_object_or_404(Conversation, members__in=[request.user.id])
-    
+    conversation = get_object_or_404(Conversation, id=conversation_id, members=request.user)
     # Obtener todos los mensajes asociados con la conversación
     mensajes = conversation.messages.all()
 
@@ -85,11 +86,7 @@ def eliminar_conversation(request):
         # Supongamos que quieres eliminar el primer mensaje, puedes hacer lo siguiente:
         mensaje_a_eliminar = mensajes.first()
         mensaje_a_eliminar.delete()
-        # Si deseas eliminar un mensaje específico por su pk (clave primaria), puedes hacerlo así:
-        # mensaje_pk = 123  # Reemplaza 123 con el pk del mensaje que deseas eliminar
-        # mensaje_a_eliminar = get_object_or_404(ConversationMessage, conversation=conversation, pk=mensaje_pk)
-        # mensaje_a_eliminar.delete()
-
+     
     # Aquí, se supone que tienes un formulario (variable form) para agregar nuevos mensajes a la conversación.
     form = ConversationMessageForm(request.POST)
     if form.is_valid():
