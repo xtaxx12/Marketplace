@@ -73,6 +73,20 @@ def detail(request, pk):
     })
     
 
+def eliminar_conversacion(request, conversation_id):
+    # Obtener la conversación
+    conversation = get_object_or_404(Conversation, pk=conversation_id)
+
+    # Verificar si el usuario actual es miembro de la conversación
+    if request.user in conversation.members.all():
+        # Eliminar todos los mensajes de la conversación
+        conversation.messages.all().delete()
+
+        # Eliminar la conversación
+        conversation.delete()
+
+    # Redirigir a la lista de conversaciones
+    return redirect('conversation/new.html')
 
 
 def eliminar_conversation(request,conversation_id):

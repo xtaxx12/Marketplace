@@ -16,7 +16,6 @@ def index(request):
         'categories': categories,
         'items': items,
     })
-
 def contact(request):
     return render(request, 'core/contact.html')
 
