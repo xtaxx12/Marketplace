@@ -1,57 +1,79 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %}Conversation{% endblock %}
+
+{% block title %}Conversación{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
-<h1 class="mb-6 text-3xl font-bold">Conversation</h1>
+<div class="container mx-auto px-4 py-6" x-data="{ open: false, deleteUrl: '' }">
+    <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">Conversación</h1>
 
-<div class="space-y-6">
-    {% if conversation.messages.all %}
-        {% for message in conversation.messages.all %}
-            <div class="p-6 flex justify-between {% if message.created_by == request.user %}bg-blue-100{% else %}bg-gray-100{% endif %} rounded-xl shadow-sm">
-                <div>
-                    <p class="mb-2 text-lg font-semibold">{{ message.created_by.username }} <span class="text-gray-500 text-sm">@ {{ message.created_at }}</span></p>
-                    <p class="text-gray-700">{{ message.content }}</p>
-                </div>
-                {% if message.created_by == request.user %}
-                    <!-- Botón para eliminar -->
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ message.id }}">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <!-- Modal para borrar mensaje -->
-                    <div class="modal fade" id="deleteModal{{ message.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ message.id }}" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ message.id }}">Eliminar mensaje</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>¿Estás seguro de que deseas eliminar este mensaje?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <form action="{% url 'conversation:eliminar_mensaje' message.id %}" method="POST">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                                    </form>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                </div>
-                            </div>
-                        </div>
+    <div class="space-y-6">
+        {% if conversation.messages.all %}
+            {% for message in conversation.messages.all %}
+                <div class="p-6 flex justify-between items-center 
+                            {% if message.created_by == request.user %}bg-blue-100{% else %}bg-gray-100{% endif %}
+                            rounded-xl shadow-md border border-gray-200">
+                    <div>
+                        <p class="mb-2 text-lg font-semibold text-gray-800">
+                            {{ message.created_by.username }} 
+                            <span class="text-gray-500 text-sm">@ {{ message.created_at }}</span>
+                        </p>
+                        <p class="text-gray-700">{{ message.content }}</p>
                     </div>
-                {% endif %}
+                    
+                    {% if message.created_by == request.user %}
+                        <!-- Botón para abrir el modal -->
+                        <button 
+                            class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition" 
+                            @click="open = true; deleteUrl = '{% url 'conversation:eliminar_mensaje' message.id %}'"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-gray-500 text-center">No hay mensajes en esta conversación.</p>
+        {% endif %}
+    </div>
+
+    <!-- Modal con Tailwind y Alpine.js -->
+    <div 
+        x-show="open" 
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        x-transition.opacity
+    >
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-lg font-bold text-red-600">Eliminar mensaje</h2>
+            <p class="text-gray-600 mt-2">¿Estás seguro de que deseas eliminar este mensaje?</p>
+            
+            <div class="mt-4 flex justify-end space-x-2">
+                <button 
+                    @click="open = false" 
+                    class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition"
+                >
+                    Cancelar
+                </button>
+                <form :action="deleteUrl" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                        Eliminar
+                    </button>
+                </form>
             </div>
-        {% endfor %}
-    {% else %}
-        <p class="text-gray-500">No hay mensajes en esta conversación.</p>
-    {% endif %}
+        </div>
+    </div>
+
+    <!-- Formulario para enviar mensajes -->
+    <form method="post" action="." class="mt-6 bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
+        {% csrf_token %}
+        <div class="mb-4">
+            {{ form.as_p }}
+        </div>
+        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition">
+            Enviar mensaje
+        </button>
+    </form>
+    
 </div>
-
-<form method="post" action="." class="mt-6">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-success mt-6">Submit</button>
-</form>
-
 {% endblock %}

@@ -1,103 +1,206 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="{% static 'icon1.ico' %}" type="image/x-icon">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="{% static 'icon1.ico' %}"
+      type="image/x-icon"
+    />
+  
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <title>{% block title %}{% endblock %} | Tienda Web</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-gray-100 text-gray-800">
+  <body class="bg-gray-100 text-gray-800">
     <div class="flex flex-col min-h-screen">
-        <!-- Navbar -->
-        <nav class="bg-gray-900 text-white shadow">
-            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-                <a href="/" class="text-2xl font-bold hover:text-gray-400">Tienda Web</a>
-                <!-- Mobile menu button -->
-                <button id="mobile-menu-button" class="lg:hidden block text-white focus:outline-none">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <!-- Menu -->
-                <ul id="mobile-menu" class="hidden lg:flex items-center space-x-6">
-                    <li><a href="{% url 'item:new' %}" class="hover:text-gray-400">New Item</a></li>
-                    <li><a href="{% url 'item:items' %}" class="hover:text-gray-400">Browse</a></li>
-                    {% if request.user.is_authenticated %}
-                        <li><a href="{% url 'conversation:inbox' %}" class="hover:text-gray-400">Inbox</a></li>
-                        <li><a href="{% url 'dashboard:index' %}" class="hover:text-gray-400">Dashboard</a></li>
-                        <li><span class="text-sm font-medium">User: {{ user.username }}</span></li>
-                        <li>
-                            <a href="{% url 'core:logout' %}" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Cerrar Sesión</a>
-                        </li>
-                    {% else %}
-                        <li>
-                            <a href="{% url 'core:signup' %}" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign Up</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'core:login' %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Log In</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-            <!-- Mobile menu hidden by default -->
-            <ul id="mobile-dropdown" class="hidden flex-col space-y-3 px-4 py-3 bg-gray-800 lg:hidden">
-                <li><a href="{% url 'item:new' %}" class="block text-white hover:text-gray-400">New Item</a></li>
-                <li><a href="{% url 'item:items' %}" class="block text-white hover:text-gray-400">Browse</a></li>
-                {% if request.user.is_authenticated %}
-                    <li><a href="{% url 'conversation:inbox' %}" class="block text-white hover:text-gray-400">Inbox</a></li>
-                    <li><a href="{% url 'dashboard:index' %}" class="block text-white hover:text-gray-400">Dashboard</a></li>
-                    <li><span class="block text-sm font-medium text-gray-300">User: {{ user.username }}</span></li>
-                    <li>
-                        <a href="{% url 'core:logout' %}" class="block px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Cerrar Sesión</a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="{% url 'core:signup' %}" class="block px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign Up</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'core:login' %}" class="block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Log In</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
+      <!-- Navbar -->
+      <nav class="bg-gray-900 text-white shadow">
+        <div
+          class="container mx-auto px-4 py-3 flex items-center justify-between"
+        >
+          <a href="/" class="text-2xl font-bold hover:text-gray-400"
+            >Tienda Web</a
+          >
+          <!-- Mobile menu button -->
+          <button
+            id="mobile-menu-button"
+            class="lg:hidden block text-white focus:outline-none"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+          <!-- Menu -->
+          <ul id="mobile-menu" class="hidden lg:flex items-center space-x-6">
+            <li>
+              <a href="{% url 'item:new' %}" class="hover:text-gray-400"
+                >New Item</a
+              >
+            </li>
+            <li>
+              <a href="{% url 'item:items' %}" class="hover:text-gray-400"
+                >Browse</a
+              >
+            </li>
+            {% if request.user.is_authenticated %}
+            <li>
+              <a
+                href="{% url 'conversation:inbox' %}"
+                class="hover:text-gray-400"
+                >Inbox</a
+              >
+            </li>
+            <li>
+              <a href="{% url 'dashboard:index' %}" class="hover:text-gray-400"
+                >Dashboard</a
+              >
+            </li>
+            <li>
+              <span class="text-sm font-medium">User: {{ user.username }}</span>
+            </li>
+            <li>
+              <a
+                href="{% url 'core:logout' %}"
+                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >Cerrar Sesión</a
+              >
+            </li>
+            {% else %}
+            <li>
+              <a
+                href="{% url 'core:signup' %}"
+                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                >Sign Up</a
+              >
+            </li>
+            <li>
+              <a
+                href="{% url 'core:login' %}"
+                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >Log In</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+        <!-- Mobile menu hidden by default -->
+        <ul
+          id="mobile-dropdown"
+          class="hidden flex-col space-y-3 px-4 py-3 bg-gray-800 lg:hidden"
+        >
+          <li>
+            <a
+              href="{% url 'item:new' %}"
+              class="block text-white hover:text-gray-400"
+              >New Item</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'item:items' %}"
+              class="block text-white hover:text-gray-400"
+              >Browse</a
+            >
+          </li>
+          {% if request.user.is_authenticated %}
+          <li>
+            <a
+              href="{% url 'conversation:inbox' %}"
+              class="block text-white hover:text-gray-400"
+              >Inbox</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'dashboard:index' %}"
+              class="block text-white hover:text-gray-400"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <span class="block text-sm font-medium text-gray-300"
+              >User: {{ user.username }}</span
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'core:logout' %}"
+              class="block px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >Cerrar Sesión</a
+            >
+          </li>
+          {% else %}
+          <li>
+            <a
+              href="{% url 'core:signup' %}"
+              class="block px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+              >Sign Up</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'core:login' %}"
+              class="block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >Log In</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
 
-        <!-- Main Content -->
-        <main class="flex-grow container mx-auto p-4">
-            {% block content %}
-            {% endblock %}
-        </main>
+      <!-- Main Content -->
+      <main class="flex-grow container mx-auto p-4">
+        {% block content %} {% endblock %}
+      </main>
 
-        <!-- Footer -->
-        <footer class="bg-gray-900 text-white text-center py-6">
-            <div class="container mx-auto">
-                <p class="mb-3 space-x-3">
-                    <a href="#" class="text-blue-400 hover:text-blue-300">Política de privacidad</a>
-                    <a href="#" class="text-blue-400 hover:text-blue-300">Aviso legal</a>
-                    <a href="{% url 'core:contact' %}" class="text-blue-400 hover:text-blue-300">Contacto</a>
-                </p>
-                <p class="text-sm font-medium">Desarrollado por: Joel Rojas</p>
-            </div>
-        </footer>
+      <!-- Footer -->
+      <footer class="bg-gray-900 text-white text-center py-6">
+        <div class="container mx-auto">
+          <p class="mb-3 space-x-3">
+            <a href="#" class="text-blue-400 hover:text-blue-300"
+              >Política de privacidad</a
+            >
+            <a href="#" class="text-blue-400 hover:text-blue-300"
+              >Aviso legal</a
+            >
+            <a
+              href="{% url 'core:contact' %}"
+              class="text-blue-400 hover:text-blue-300"
+              >Contacto</a
+            >
+          </p>
+          <p class="text-sm font-medium">Desarrollado por: Joel Rojas</p>
+        </div>
+      </footer>
     </div>
 
     <!-- JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const menuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-dropdown');
+      document.addEventListener("DOMContentLoaded", function () {
+        const menuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-dropdown");
 
-            menuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
+        menuButton.addEventListener("click", () => {
+          mobileMenu.classList.toggle("hidden");
         });
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -1,10 +1,16 @@
-from django.contrib.auth.views import PasswordResetConfirmView
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView, PasswordResetCompleteView,PasswordResetConfirmView
 from django.urls import reverse_lazy
 
 
-class CustomPasswordResetView(PasswordResetConfirmView):
+#mi error fue no haber creado una clase personalizada para los tres url
+class CustomPasswordResetView(PasswordResetView):
+    email_template_name = 'core/password_reset_email.html'
+    success_url = reverse_lazy('core:password_reset_done')
+    
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'core/password_reset_confirm.html'
+    success_url = reverse_lazy('core:password_reset_complete')  
 
-    def get_success_url(self):
-        print("Redirigiendo a password_reset_complete")  # Mensaje de depuración
-        return reverse_lazy('core:password_reset_complete')
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'core/password_reset_complete.html'  # ✅ Solo necesita el template
