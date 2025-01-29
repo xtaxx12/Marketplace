@@ -75,4 +75,3 @@ def enviar_correo(request):
         'items': items,
     })
     
-    

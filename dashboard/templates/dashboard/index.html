@@ -3,28 +3,43 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-    <div class="mt-6 px-4 lg:px-12 py-8 bg-gray-100 rounded-xl">
-        <h2 class="mb-6 text-2xl text-center">My items</h2>
+<div class="container mx-auto mt-8 px-4 lg:px-12 py-8 bg-gray-50 rounded-xl shadow-md">
+    <h2 class="mb-8 text-3xl font-bold text-center text-gray-800">My Items</h2>
 
-        {% if items %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {% for item in items %}
-                    <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg">
-                        <a href="{% url 'item:detail' item.id %}">
-                            <div>
-                                <img src="{{ item.image.url }}" class="w-full h-40 object-cover object-center rounded-t-xl">
-                            </div>
-        
-                            <div class="p-4">
-                                <h2 class="text-xl font-semibold">{{ item.name }}</h2>
-                                <p class="text-gray-500">Price: {{ item.price }} $</p>
-                            </div>
-                        </a>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="text-center text-xl font-semibold">You have no items yet.</p>
-        {% endif %}
-    </div>
+    {% if items %}
+        <!-- Grid de ítems -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for item in items %}
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <a href="{% url 'item:detail' item.id %}">
+                        <!-- Imagen del ítem -->
+                        <img 
+                            src="{{ item.image.url }}" 
+                            alt="{{ item.name }}" 
+                            class="w-full h-48 object-cover object-center rounded-t-xl"
+                        >
+
+                        <!-- Información del ítem -->
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-gray-800 truncate">{{ item.name }}</h3>
+                            <p class="mt-2 text-gray-600"><strong>Price:</strong> ${{ item.price }}</p>
+                            <p class="mt-1 text-sm text-gray-500"><strong>Uploaded:</strong> {{ item.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Mensaje si no hay ítems -->
+        <div class="text-center py-12">
+            <p class="text-xl font-semibold text-gray-700">You don’t have any items yet.</p>
+            <a 
+                href="{% url 'item:create' %}" 
+                class="mt-6 inline-block px-8 py-3 text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-300"
+            >
+                Add Your First Item
+            </a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

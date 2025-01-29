@@ -3,29 +3,33 @@
 {% block title %}Inbox{% endblock %}
 
 {% block content %}
-<h1 class="mb-6 text-3xl">Inbox</h1>
+<main class="container mx-auto py-6">
+    <h1 class="mb-6 text-3xl font-bold">Inbox</h1>
 
-<div class="space-y-6">
-    {% for conversation in conversations %}
-    <br>
-        <a href="{% url 'conversation:detail' conversation.id %}">
-            <div class="p-6 flex bg-gray-100 rounded-xl">
-                <div class="pr-6">
-                    <img src="{{ conversation.item.image.url }}" class="w-20 rounded-xl">
-                </div>
+    <div class="space-y-6">
+        {% for conversation in conversations %}
+            <a href="{% url 'conversation:detail' conversation.id %}">
+                <div class="p-6 flex bg-gray-100 rounded-xl hover:bg-gray-200 transition duration-300">
+                    <div class="pr-6 flex-shrink-0">
+                        <img src="{{ conversation.item.image.url }}" class="w-20 h-20 object-cover rounded-xl">
+                    </div>
 
-                <div>
-                    {% for member in conversation.members.all %}
-                        {% if member != request.user %}
-                            <p class="mb-4"><strong>{{ member.username }}</strong> | {{ conversation.modified_at }}</p>
-                            <p>{{ conversation.item.name }}</p>
-                                   
-                        {% endif %}
-                    {% endfor %}
-                    
+                    <div class="flex-grow">
+                        {% for member in conversation.members.all %}
+                            {% if member != request.user %}
+                                <p class="mb-4 text-lg font-semibold">
+                                    {{ member.username }}
+                                    <span class="text-gray-500 text-sm">| {{ conversation.modified_at }}</span>
+                                </p>
+                                <p class="text-gray-700">{{ conversation.item.name }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
-        </a>
-    {% endfor %}
-</div>
+            </a>
+        {% endfor %}
+    </div>
+    
+   
+</main>
 {% endblock %}

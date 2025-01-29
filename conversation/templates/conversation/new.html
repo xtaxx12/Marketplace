@@ -1,27 +1,41 @@
 {% extends 'core/base.html' %}
 
-{% block title %}New conversation{% endblock %}
+{% block title %}New Conversation{% endblock %}
 
 {% block content %}
-<h1 class="mb-6 text-3xl">New conversation</h1>
+<main class="container mx-auto py-10 px-6 lg:px-12">
+    <h1 class="mb-8 text-4xl font-extrabold text-gray-800 text-center">Start a New Conversation</h1>
 
-<form method="post" action=".">
-    {% csrf_token %}
+    <form method="post" action="." class="bg-white rounded-2xl shadow-lg p-8 lg:p-12 space-y-6">
+        {% csrf_token %}
 
-    <div class="space-y-4">
-        {{ form.as_p }}
-    </div>
-
-    {% if form.errors or form.non_field_errors %}
-        <div class="mb-3 p-6 bg-red-100 rounded-xl">
-            {% for field in form %}
-                {{ field.errors }}
-            {% endfor %}
-
-            {{ form.non_field_errors }}
+        <!-- Form Fields -->
+        <div class="space-y-4">
+            {{ form.as_p }}
         </div>
-    {% endif %}
-   
-    <button class="btn btn-success mt-6">Send</button>
-</form>
+
+        <!-- Error Messages -->
+        {% if form.errors or form.non_field_errors %}
+            <div class="p-6 bg-red-100 border border-red-400 text-red-800 rounded-xl">
+                <ul class="list-disc pl-5 space-y-1">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- Submit Button -->
+        <div class="text-center">
+            <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white font-medium py-3 px-6 rounded-xl hover:bg-blue-700 transition duration-300">
+                Send
+            </button>
+        </div>
+    </form>
+</main>
 {% endblock %}

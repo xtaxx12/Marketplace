@@ -4,48 +4,47 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
-<h1 class="mb-6 text-3xl">Conversation</h1>
+<h1 class="mb-6 text-3xl font-bold">Conversation</h1>
 
 <div class="space-y-6">
     {% if conversation.messages.all %}
         {% for message in conversation.messages.all %}
-            <div class="p-6 flex justify-between {% if message.created_by == request.user %}bg-blue-100{% else %}bg-gray-100{% endif %} rounded-xl">
+            <div class="p-6 flex justify-between {% if message.created_by == request.user %}bg-blue-100{% else %}bg-gray-100{% endif %} rounded-xl shadow-sm">
                 <div>
-                    <p class="mb-4"><strong>{{ message.created_by.username }}</strong> @ {{ message.created_at }}</p>
-                    <p>{{ message.content }}</p>
+                    <p class="mb-2 text-lg font-semibold">{{ message.created_by.username }} <span class="text-gray-500 text-sm">@ {{ message.created_at }}</span></p>
+                    <p class="text-gray-700">{{ message.content }}</p>
                 </div>
-               <!--boton para eliminar-->
-                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#eli{{conversation.id}}">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-                <!--modal para borrar mensaje-->
-                <div class="modal" id="eli{{conversation.id}}" tabindex="-1" aria-labelledby="myModalLabel2" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Eliminar mensaje</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true"></span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Está por eliminar este mensaje</p>
-                            </div>
-                            <div class="modal-footer">
-                                <form action="{% url 'conversation:eliminar_conversation' conversation.id %}" method="POST">
-                                    {% csrf_token %}
-                                    <input type="submit" class="btn btn-primary" value="Eliminar">
-                                </form>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                {% if message.created_by == request.user %}
+                    <!-- Botón para eliminar -->
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ message.id }}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <!-- Modal para borrar mensaje -->
+                    <div class="modal fade" id="deleteModal{{ message.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ message.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel{{ message.id }}">Eliminar mensaje</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar este mensaje?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <form action="{% url 'conversation:eliminar_mensaje' message.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    </form>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
         {% endfor %}
     {% else %}
-        <p>No hay mensajes en esta conversación.</p>
-          
+        <p class="text-gray-500">No hay mensajes en esta conversación.</p>
     {% endif %}
 </div>
 

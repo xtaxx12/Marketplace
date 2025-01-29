@@ -11,17 +11,17 @@
         {% csrf_token %}
         <div class="mb-3">
             <label for="name" class="form-label">Name:</label>
-            <input type="text" id="name" name="name" class="form-control" required>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Ingrese su nombre" required>
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email:</label>
-            <input type="email" id="email" name="email" class="form-control" required>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese su correo electrónico" required>
         </div>
         <div class="mb-3">
             <label for="message" class="form-label">Message:</label>
-            <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+            <textarea id="message" name="message" class="form-control" rows="4" placeholder="Escriba su mensaje aquí" required></textarea>
         </div>
-        <button class="btn btn-success" type="submit">Submit</button>
+        <button class="btn btn-success" type="submit" style="background-color: #28a745; border-color: #28a745;">Submit</button>
     </form>
 </div>
 {% endblock %}

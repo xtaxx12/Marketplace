@@ -3,41 +3,44 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-    <div class="mt-6 px-4 lg:px-12 py-8 bg-gray-100 rounded-xl">
-        <h2 class="mb-6 text-2xl text-center">Newest items</h2>
+<!-- Newest Items Section -->
+<div class="container mx-auto mt-8 px-4 lg:px-8 py-8 bg-gray-50 rounded-2xl shadow-lg">
+    <h2 class="mb-8 text-4xl font-extrabold text-center text-gray-800">Newest Items</h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {% for item in items %}
-                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg">
-                    <a href="{% url 'item:detail' item.id %}">
-                        <div>
-                            <img src="{{ item.image.url }}" class="w-full h-40 object-cover object-center rounded-t-xl">
-                        </div>
-
-                        <div class="p-4">
-                            <h2 class="text-xl font-semibold">{{ item.name }}</h2>
-                            <p class="text-gray-500">Price: {{ item.price }}$</p>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {% for item in items %}
+            <div class="bg-white rounded-2xl overflow-hidden shadow hover:shadow-xl transition-shadow duration-300">
+                <a href="{% url 'item:detail' item.id %}" class="block">
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-48 object-cover object-center rounded-t-2xl">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold text-gray-800">{{ item.name }}</h3>
+                        <p class="text-gray-500 mt-2">Price: <span class="font-medium text-gray-800">${{ item.price }}</span></p>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p class="text-center col-span-full text-gray-600 text-lg">No items available at the moment.</p>
+        {% endfor %}
     </div>
+</div>
 
-    <div class="mt-6 px-4 lg:px-12 py-8 bg-gray-100 rounded-xl">
-        <h2 class="mb-6 text-2xl text-center">Categories</h2>
+<!-- Categories Section -->
+<div class="container mx-auto mt-12 px-4 lg:px-8 py-8 bg-gray-50 rounded-2xl shadow-lg">
+    <h2 class="mb-8 text-4xl font-extrabold text-center text-gray-800">Categories</h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {% for category in categories %}
-                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg">
-                    <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}">
-                        <div class="p-4">
-                            <h2 class="text-xl font-semibold">{{ category.name }}</h2>
-                            <p class="text-gray-500">{{ category.items.count }} items</p>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {% for category in categories %}
+            <div class="bg-white rounded-2xl overflow-hidden shadow hover:shadow-xl transition-shadow duration-300">
+                <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}" class="block">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-gray-800">{{ category.name }}</h3>
+                        <p class="text-gray-500 mt-2">{{ category.items.count }} items</p>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p class="text-center col-span-full text-gray-600 text-lg">No categories available at the moment.</p>
+        {% endfor %}
     </div>
+</div>
 {% endblock %}

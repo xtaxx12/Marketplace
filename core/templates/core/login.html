@@ -3,28 +3,27 @@
 {% block title %}Log in{% endblock %}
 
 {% block content %}
-<div class="w-1/2 my-6 mx-auto p-6 bg-gray-100 rounded-xl">
-    <h1 class="mb-6 text-3xl">Log in</h1>
+<div class="w-full max-w-md my-6 mx-auto p-6 bg-gray-100 rounded-xl shadow-md">
+    <h1 class="mb-6 text-3xl font-bold text-center">Log in</h1>
 
     <form method="post" action=".">
         {% csrf_token %}
 
-        <div class="mb-3">
-            <label class="inline-block mb-2">Username</label><br>
-            {{ form.username }}
+        <div class="mb-4">
+            <label for="username" class="block text-lg mb-2">Username</label>
+            <input type="text" name="username" id="username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
         </div>
 
-        <div class="mb-3">
-            <label class="inline-block mb-2">Password</label><br>
-            {{ form.password }}
+        <div class="mb-4">
+            <label for="password" class="block text-lg mb-2">Password</label>
+            <input type="password" name="password" id="password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
         </div>
 
         {% if form.errors or form.non_field_errors %}
-            <div class="mb-3 p-6 bg-red-100 rounded-xl">
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
                 {% for field in form %}
                     {{ field.errors }}
                 {% endfor %}
-
                 {{ form.non_field_errors }}
             </div>
         {% endif %}
@@ -33,6 +32,10 @@
             <button class="bg-green-500 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg mt-6 text-lg">
                 Submit
             </button>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'core:password_reset' %}" class="text-blue-500 hover:underline">Forgot your password?</a>
         </div>
     </form>
 </div>
