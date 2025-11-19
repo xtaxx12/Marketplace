@@ -30,6 +30,8 @@ Sistema de marketplace desarrollado con Django que permite a los usuarios compra
 - 🔍 **Búsqueda avanzada**: Filtrado por categoría y texto
 - 📧 **Notificaciones por email**: Sistema de correo integrado
 - 🎨 **Interfaz moderna**: Diseño con Tailwind CSS y Jazzmin Admin
+- 📄 **Paginación optimizada**: Navegación eficiente en listados grandes
+- ⚡ **Índices de BD**: Consultas optimizadas para máximo rendimiento
 
 ---
 
