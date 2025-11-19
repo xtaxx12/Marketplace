@@ -38,9 +38,22 @@ def new_conversation(request, item_pk):
 
 @login_required
 def inbox(request):
-    conversations = Conversation.objects.filter(members__in=[request.user.id])
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
+    conversations = Conversation.objects.filter(members__in=[request.user.id]).select_related('item')
 
-    return render(request, 'conversation/inbox.html', {'conversations': conversations})
+    # Paginación
+    paginator = Paginator(conversations, 15)  # 15 conversaciones por página
+    page = request.GET.get('page')
+    
+    try:
+        conversations_page = paginator.page(page)
+    except PageNotAnInteger:
+        conversations_page = paginator.page(1)
+    except EmptyPage:
+        conversations_page = paginator.page(paginator.num_pages)
+
+    return render(request, 'conversation/inbox.html', {'conversations': conversations_page})
 
 @login_required
 def detail(request, pk):

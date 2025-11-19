@@ -29,6 +29,37 @@
                 </div>
             {% endfor %}
         </div>
+
+        <!-- Paginación -->
+        {% if items.has_other_pages %}
+            <div class="flex justify-center items-center mt-8 space-x-2">
+                {% if items.has_previous %}
+                    <a href="?page=1" 
+                       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Primera
+                    </a>
+                    <a href="?page={{ items.previous_page_number }}" 
+                       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Anterior
+                    </a>
+                {% endif %}
+
+                <span class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold">
+                    Página {{ items.number }} de {{ items.paginator.num_pages }}
+                </span>
+
+                {% if items.has_next %}
+                    <a href="?page={{ items.next_page_number }}" 
+                       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Siguiente
+                    </a>
+                    <a href="?page={{ items.paginator.num_pages }}" 
+                       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Última
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
     {% else %}
         <!-- Mensaje si no hay ítems -->
         <div class="text-center py-12">

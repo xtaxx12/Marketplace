@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -9,7 +10,7 @@ def items(request):
     query = request.GET.get('query', '')
     category_id = request.GET.get('category', 0)
     categories = Category.objects.all()
-    items = Item.objects.filter(is_sold=False)
+    items = Item.objects.filter(is_sold=False).select_related('category', 'created_by')
 
     if category_id:
         items = items.filter(category_id=category_id)
@@ -17,8 +18,21 @@ def items(request):
     if query:
         items = items.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
+    # Paginación
+    paginator = Paginator(items, 12)  # 12 items por página
+    page = request.GET.get('page')
+    
+    try:
+        items_page = paginator.page(page)
+    except PageNotAnInteger:
+        # Si page no es un entero, mostrar la primera página
+        items_page = paginator.page(1)
+    except EmptyPage:
+        # Si page está fuera de rango, mostrar la última página
+        items_page = paginator.page(paginator.num_pages)
+
     return render(request, 'item/items.html', {
-        'items': items,
+        'items': items_page,
         'query': query,
         'categories': categories,
         'category_id': int(category_id)

@@ -7,6 +7,9 @@ class Category(models.Model):
     class Meta:
         ordering = ('name',)
         verbose_name_plural = 'Categories'
+        indexes = [
+            models.Index(fields=['name']),
+        ]
     
     def __str__(self):
         return self.name
@@ -20,6 +23,16 @@ class Item(models.Model):
     is_sold = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, related_name='items', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['is_sold', 'created_at']),
+            models.Index(fields=['category', 'is_sold']),
+            models.Index(fields=['created_by', 'created_at']),
+            models.Index(fields=['is_sold', 'category', 'created_at']),
+            models.Index(fields=['name']),
+        ]
     
     def __str__(self):
         return self.name
