@@ -1,0 +1,150 @@
+{% extends 'core/base.html' %}
+{% load item_filters %}
+
+{% block title %}Mis Favoritos{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">
+            <i class="fas fa-heart text-red-500 mr-3"></i>Mis Favoritos
+        </h1>
+        <p class="text-gray-600">
+            {% if favorites %}
+                Tienes {{ favorites|length }} artículo{% if favorites|length != 1 %}s{% endif %} guardado{% if favorites|length != 1 %}s{% endif %}
+            {% else %}
+                Aún no has guardado ningún artículo
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Grid de Favoritos -->
+    {% if favorites %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for favorite in favorites %}
+                <div class="product-card bg-white rounded-2xl overflow-hidden shadow-md relative" data-item-id="{{ favorite.item.id }}">
+                    <!-- Botón de eliminar favorito -->
+                    <button 
+                        onclick="toggleFavorite({{ favorite.item.id }}, this)"
+                        class="absolute top-3 right-3 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200"
+                        title="Quitar de favoritos"
+                    >
+                        <i class="fas fa-heart text-red-500 text-xl"></i>
+                    </button>
+
+                    <a href="{% url 'item:detail' favorite.item.id %}" class="block">
+                        <div class="relative">
+                            {% if favorite.item.is_sold %}
+                                <div class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-10">
+                                    <span class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg">
+                                        VENDIDO
+                                    </span>
+                                </div>
+                            {% endif %}
+                            <img src="{{ favorite.item.image.url }}" alt="{{ favorite.item.name }}" class="w-full h-48 object-cover object-center">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold text-gray-900 truncate" style="color: #1a202c;">
+                                {{ favorite.item.name }}
+                            </h3>
+                            <p class="text-gray-600 text-sm mt-1 truncate">
+                                {{ favorite.item.category.name }}
+                            </p>
+                            <p class="text-2xl font-bold mt-2" style="color: #667eea;">
+                                {{ favorite.item.price|format_price }}
+                            </p>
+                            <p class="text-xs text-gray-400 mt-2">
+                                <i class="far fa-clock mr-1"></i>Guardado hace {{ favorite.created_at|timesince }}
+                            </p>
+                        </div>
+                    </a>
+                    
+                    {% if not favorite.item.is_sold %}
+                    <div class="px-4 pb-4">
+                        <a href="{% url 'item:detail' favorite.item.id %}" class="block w-full text-center py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-200">
+                            <i class="fas fa-eye mr-2"></i>Ver Detalles
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white rounded-2xl shadow-md p-12 text-center">
+            <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-red-100 to-pink-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-heart-broken text-6xl text-red-400"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">No tienes favoritos aún</h3>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                Explora nuestro catálogo y guarda los artículos que te interesen haciendo clic en el ícono de corazón
+            </p>
+            <a href="{% url 'item:items' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-200">
+                <i class="fas fa-search mr-2"></i>Explorar Productos
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleFavorite(itemId, button) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    fetch(`/favorites/toggle/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Animar y eliminar la tarjeta
+            const card = button.closest('[data-item-id]');
+            card.style.transform = 'scale(0.8)';
+            card.style.opacity = '0';
+            
+            setTimeout(() => {
+                card.remove();
+                
+                // Si no quedan más favoritos, recargar la página para mostrar el empty state
+                const remainingCards = document.querySelectorAll('[data-item-id]');
+                if (remainingCards.length === 0) {
+                    location.reload();
+                }
+            }, 300);
+            
+            // Actualizar contador en el navbar
+            updateFavoritesCount();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error al quitar el favorito');
+    });
+}
+
+function updateFavoritesCount() {
+    fetch('/api/favorites/count/')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('favorites-count');
+            if (badge && data.count > 0) {
+                badge.textContent = data.count;
+                badge.style.display = 'flex';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        });
+}
+</script>
+
+<style>
+    [data-item-id] {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}

@@ -27,4 +27,15 @@ urlpatterns = [
     path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
     path('notifications/<int:notification_id>/delete/', views.delete_notification_view, name='delete_notification'),
     path('api/notifications/count/', views.get_notifications_count, name='notifications_count'),
+    
+    # Favoritos
+    path('favorites/', views.favorites_list, name='favorites'),
+    path('favorites/toggle/<int:item_id>/', views.toggle_favorite, name='toggle_favorite'),
+    path('api/favorites/count/', views.get_favorites_count, name='favorites_count'),
+    path('api/favorites/check/<int:item_id>/', views.check_favorite, name='check_favorite'),
+    
+    # Calificaciones
+    path('rating/add/<int:item_id>/', views.add_rating, name='add_rating'),
+    path('rating/delete/<int:rating_id>/', views.delete_rating, name='delete_rating'),
+    path('api/ratings/<int:item_id>/', views.get_item_ratings, name='get_item_ratings'),
 ]

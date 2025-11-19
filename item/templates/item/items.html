@@ -40,6 +40,18 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {% for item in items %}
                     <div class="product-card bg-white rounded-xl overflow-hidden shadow-md relative">
+                        {% if request.user.is_authenticated %}
+                        <!-- Botón de favorito -->
+                        <button 
+                            onclick="toggleFavorite({{ item.id }}, this)"
+                            class="favorite-btn absolute top-3 right-3 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200"
+                            data-item-id="{{ item.id }}"
+                            title="Agregar a favoritos"
+                        >
+                            <i class="far fa-heart text-red-500 text-xl"></i>
+                        </button>
+                        {% endif %}
+                        
                         <a href="{% url 'item:detail' item.id %}">
                             <div class="relative">
                                 <img src="{{ item.image.url }}" class="w-full h-48 object-cover object-center">
@@ -91,4 +103,82 @@
             {% endif %}
         </div>
     </div>
+
+{% if request.user.is_authenticated %}
+<script>
+// Verificar favoritos al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    
+    favoriteButtons.forEach(button => {
+        const itemId = button.dataset.itemId;
+        fetch(`/api/favorites/check/${itemId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_favorite) {
+                    const icon = button.querySelector('i');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                }
+            });
+    });
+});
+
+function toggleFavorite(itemId, button) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const icon = button.querySelector('i');
+    
+    fetch(`/favorites/toggle/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Animar el botón
+            button.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 200);
+            
+            // Cambiar el ícono
+            if (data.is_favorite) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                button.title = 'Quitar de favoritos';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                button.title = 'Agregar a favoritos';
+            }
+            
+            // Actualizar contador
+            updateFavoritesCount();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function updateFavoritesCount() {
+    fetch('/api/favorites/count/')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('favorites-count');
+            if (badge && data.count > 0) {
+                badge.textContent = data.count;
+                badge.style.display = 'flex';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        });
+}
+</script>
+{% endif %}
 {% endblock %}

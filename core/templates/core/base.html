@@ -210,6 +210,12 @@
               >
             </li>
             <li>
+              <a href="{% url 'core:favorites' %}" class="notification-icon hover:text-purple-400 transition-colors duration-200 font-medium" title="Favoritos">
+                <i class="fas fa-heart text-xl"></i>
+                <span class="notification-badge" id="favorites-count" style="display: none;">0</span>
+              </a>
+            </li>
+            <li>
               <a href="{% url 'core:notifications' %}" class="notification-icon hover:text-purple-400 transition-colors duration-200 font-medium" title="Notificaciones">
                 <i class="fas fa-bell text-xl"></i>
                 <span class="notification-badge" id="notification-count" style="display: none;">0</span>
@@ -288,6 +294,13 @@
               href="{% url 'dashboard:index' %}"
               class="block text-white hover:text-purple-400 transition-colors duration-200"
               ><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'core:favorites' %}"
+              class="block text-white hover:text-purple-400 transition-colors duration-200"
+              ><i class="fas fa-heart mr-2"></i>Favoritos <span id="favorites-count-mobile" class="text-red-400 font-bold"></span></a
             >
           </li>
           <li>
@@ -391,11 +404,36 @@
             .catch(error => console.error('Error al obtener notificaciones:', error));
         }
         
+        function updateFavoritesCount() {
+          fetch('/api/favorites/count/')
+            .then(response => response.json())
+            .then(data => {
+              const badge = document.getElementById('favorites-count');
+              const mobileBadge = document.getElementById('favorites-count-mobile');
+              
+              if (data.count > 0) {
+                badge.textContent = data.count > 99 ? '99+' : data.count;
+                badge.style.display = 'flex';
+                if (mobileBadge) {
+                  mobileBadge.textContent = '(' + data.count + ')';
+                }
+              } else {
+                badge.style.display = 'none';
+                if (mobileBadge) {
+                  mobileBadge.textContent = '';
+                }
+              }
+            })
+            .catch(error => console.error('Error al obtener favoritos:', error));
+        }
+        
         // Actualizar al cargar la página
         updateNotificationCount();
+        updateFavoritesCount();
         
         // Actualizar cada 30 segundos
         setInterval(updateNotificationCount, 30000);
+        setInterval(updateFavoritesCount, 30000);
         {% endif %}
       });
     </script>
