@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load item_filters %}
 
 {% block title %}Dashboard{% endblock %}
 
@@ -22,7 +23,7 @@
                         <!-- Información del ítem -->
                         <div class="p-4">
                             <h3 class="text-xl font-semibold text-gray-800 truncate">{{ item.name }}</h3>
-                            <p class="mt-2 text-gray-600"><strong>Price:</strong> ${{ item.price }}</p>
+                            <p class="mt-2 text-gray-600"><strong>Price:</strong> {{ item.price|format_price }}</p>
                             <p class="mt-1 text-sm text-gray-500"><strong>Uploaded:</strong> {{ item.created_at|date:"M d, Y" }}</p>
                         </div>
                     </a>

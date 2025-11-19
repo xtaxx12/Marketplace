@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load item_filters %}
 
 {% block title %}{{ item.name }}{% endblock %}
 
@@ -12,7 +13,7 @@
     <!-- Información del producto -->
     <div class="md:col-span-2 lg:col-span-2 p-8 bg-gray-50 rounded-2xl shadow-md">
         <h1 class="mb-4 text-4xl font-bold text-gray-800">{{ item.name }}</h1>
-        <p class="mb-4 text-lg text-gray-600"><strong class="text-gray-700">Price:</strong> ${{ item.price }}</p>
+        <p class="mb-4 text-lg text-gray-600"><strong class="text-gray-700">Price:</strong> {{ item.price|format_price }}</p>
         <p class="mb-4 text-lg text-gray-600"><strong class="text-gray-700">Seller:</strong> {{ item.created_by.username }}</p>
 
         {% if item.description %}
@@ -58,7 +59,7 @@
                          class="w-full h-40 object-cover rounded-t-2xl">
                     <div class="p-4">
                         <h3 class="text-lg font-semibold text-gray-800">{{ item.name }}</h3>
-                        <p class="text-gray-600 mt-1">Price: ${{ item.price }}</p>
+                        <p class="text-gray-600 mt-1">Price: {{ item.price|format_price }}</p>
                     </div>
                 </a>
             </div>

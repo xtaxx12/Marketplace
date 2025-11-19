@@ -1,45 +1,81 @@
 {% extends 'core/base.html' %}
+{% load item_filters %}
 
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
 <!-- Newest Items Section -->
 <div class="container mx-auto mt-8 px-4 lg:px-8 py-8 bg-gray-50 rounded-2xl shadow-lg">
-    <h2 class="mb-8 text-4xl font-extrabold text-center text-gray-800">Newest Items</h2>
+    <h2 class="mb-8 text-4xl font-extrabold text-center text-gray-800">
+        <i class="fas fa-star text-yellow-500 mr-2"></i>Productos Más Recientes
+    </h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {% for item in items %}
-            <div class="bg-white rounded-2xl overflow-hidden shadow hover:shadow-xl transition-shadow duration-300">
+            <div class="product-card bg-white rounded-2xl overflow-hidden shadow-md relative">
                 <a href="{% url 'item:detail' item.id %}" class="block">
-                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-48 object-cover object-center rounded-t-2xl">
+                    <div class="relative">
+                        <span class="new-badge">NUEVO</span>
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-48 object-cover object-center">
+                    </div>
                     <div class="p-4">
-                        <h3 class="text-xl font-semibold text-gray-800">{{ item.name }}</h3>
-                        <p class="text-gray-500 mt-2">Price: <span class="font-medium text-gray-800">${{ item.price }}</span></p>
+                        <h3 class="text-lg font-bold text-gray-900" style="color: #1a202c;">{{ item.name }}</h3>
+                        <p class="text-2xl font-bold mt-2" style="color: #667eea;">{{ item.price|format_price }}</p>
                     </div>
                 </a>
+                <div class="add-to-cart-btn px-4 pb-4">
+                    <a href="{% url 'item:detail' item.id %}" class="block w-full text-center py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-200">
+                        <i class="fas fa-shopping-cart mr-2"></i>Ver Detalles
+                    </a>
+                </div>
             </div>
         {% empty %}
-            <p class="text-center col-span-full text-gray-600 text-lg">No items available at the moment.</p>
+            <p class="text-center col-span-full text-gray-600 text-lg">No hay productos disponibles en este momento.</p>
         {% endfor %}
     </div>
 </div>
 
 <!-- Categories Section -->
 <div class="container mx-auto mt-12 px-4 lg:px-8 py-8 bg-gray-50 rounded-2xl shadow-lg">
-    <h2 class="mb-8 text-4xl font-extrabold text-center text-gray-800">Categories</h2>
+    <h2 class="mb-8 text-4xl font-extrabold text-center text-gray-800">
+        <i class="fas fa-th-large mr-2"></i>Categorías
+    </h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {% for category in categories %}
-            <div class="bg-white rounded-2xl overflow-hidden shadow hover:shadow-xl transition-shadow duration-300">
+            {% if category.items.count > 0 %}
+            <div class="category-card rounded-2xl overflow-hidden shadow-md">
                 <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}" class="block">
-                    <div class="p-6">
+                    <div class="p-6 text-center">
+                        <div class="category-icon">
+                            {% if 'electr' in category.name|lower %}
+                                <i class="fas fa-laptop"></i>
+                            {% elif 'cloth' in category.name|lower or 'ropa' in category.name|lower %}
+                                <i class="fas fa-tshirt"></i>
+                            {% elif 'book' in category.name|lower or 'libro' in category.name|lower %}
+                                <i class="fas fa-book"></i>
+                            {% elif 'toy' in category.name|lower or 'juguete' in category.name|lower %}
+                                <i class="fas fa-gamepad"></i>
+                            {% elif 'sport' in category.name|lower or 'deporte' in category.name|lower %}
+                                <i class="fas fa-futbol"></i>
+                            {% elif 'home' in category.name|lower or 'hogar' in category.name|lower %}
+                                <i class="fas fa-home"></i>
+                            {% else %}
+                                <i class="fas fa-tag"></i>
+                            {% endif %}
+                        </div>
                         <h3 class="text-2xl font-bold text-gray-800">{{ category.name }}</h3>
-                        <p class="text-gray-500 mt-2">{{ category.items.count }} items</p>
+                        <p class="text-gray-600 mt-2">
+                            <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-white bg-opacity-50 font-semibold">
+                                {{ category.items.count }} {% if category.items.count == 1 %}item{% else %}items{% endif %}
+                            </span>
+                        </p>
                     </div>
                 </a>
             </div>
+            {% endif %}
         {% empty %}
-            <p class="text-center col-span-full text-gray-600 text-lg">No categories available at the moment.</p>
+            <p class="text-center col-span-full text-gray-600 text-lg">No hay categorías disponibles en este momento.</p>
         {% endfor %}
     </div>
 </div>

@@ -4,76 +4,177 @@
 {% block title %}Conversación{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-6" x-data="{ open: false, deleteUrl: '' }">
-    <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">Conversación</h1>
+<style>
+    .message-bubble {
+        position: relative;
+        transition: all 0.2s ease;
+    }
+    
+    .message-bubble:hover .delete-btn {
+        opacity: 1;
+    }
+    
+    .delete-btn {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    
+    .chat-container {
+        background: linear-gradient(to bottom, #e5ddd5 0%, #f0ebe5 100%);
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d9d9d9' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+</style>
 
-    <div class="space-y-6">
-        {% if conversation.messages.all %}
-            {% for message in conversation.messages.all %}
-                <div class="p-6 flex justify-between items-center 
-                            {% if message.created_by == request.user %}bg-blue-100{% else %}bg-gray-100{% endif %}
-                            rounded-xl shadow-md border border-gray-200">
-                    <div>
-                        <p class="mb-2 text-lg font-semibold text-gray-800">
-                            {{ message.created_by.username }} 
-                            <span class="text-gray-500 text-sm">@ {{ message.created_at }}</span>
-                        </p>
-                        <p class="text-gray-700">{{ message.content }}</p>
-                    </div>
-                    
-                    {% if message.created_by == request.user %}
-                        <!-- Botón para abrir el modal -->
-                        <button 
-                            class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition" 
-                            @click="open = true; deleteUrl = '{% url 'conversation:eliminar_mensaje' message.id %}'"
-                        >
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    {% endif %}
+<div class="flex flex-col h-screen" x-data="{ open: false, deleteUrl: '' }">
+    <!-- Header del Chat -->
+    <div class="bg-gray-800 text-white px-6 py-4 shadow-lg">
+        <div class="container mx-auto flex items-center">
+            <a href="{% url 'conversation:inbox' %}" class="mr-4 hover:text-gray-300 transition">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold mr-3">
+                    {% for member in conversation.members.all %}
+                        {% if member != request.user %}
+                            {{ member.username|slice:":1"|upper }}
+                        {% endif %}
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-gray-500 text-center">No hay mensajes en esta conversación.</p>
-        {% endif %}
+                <div>
+                    <h1 class="text-lg font-semibold">
+                        {% for member in conversation.members.all %}
+                            {% if member != request.user %}
+                                {{ member.username }}
+                            {% endif %}
+                        {% endfor %}
+                    </h1>
+                    <p class="text-xs text-gray-400">En línea</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Modal con Tailwind y Alpine.js -->
+    <!-- Área de Mensajes -->
+    <div class="flex-1 overflow-y-auto chat-container px-4 py-6">
+        <div class="container mx-auto max-w-4xl space-y-3">
+            {% if conversation.messages.all %}
+                {% for message in conversation.messages.all %}
+                    <!-- Mensaje -->
+                    <div class="flex {% if message.created_by == request.user %}justify-end{% else %}justify-start{% endif %}">
+                        <div class="message-bubble max-w-md {% if message.created_by == request.user %}bg-blue-600 text-white rounded-2xl rounded-tr-sm{% else %}bg-gray-200 text-gray-900 rounded-2xl rounded-tl-sm{% endif %} px-4 py-2 shadow-md relative group">
+                            <!-- Contenido del mensaje -->
+                            <p class="text-sm leading-relaxed break-words">{{ message.content }}</p>
+                            
+                            <!-- Timestamp -->
+                            <div class="flex items-center justify-end mt-1 space-x-2">
+                                <span class="text-xs {% if message.created_by == request.user %}text-blue-100{% else %}text-gray-500{% endif %}">
+                                    {{ message.created_at|date:"H:i" }}
+                                </span>
+                                {% if message.created_by == request.user %}
+                                    <i class="fas fa-check-double text-xs text-blue-200"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Botón de eliminar (solo visible en hover) -->
+                            {% if message.created_by == request.user %}
+                                <button 
+                                    class="delete-btn absolute -left-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition" 
+                                    @click="open = true; deleteUrl = '{% url 'conversation:eliminar_mensaje' message.id %}'"
+                                    title="Eliminar mensaje"
+                                >
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-comments text-6xl mb-4 opacity-30"></i>
+                        <p class="text-lg">No hay mensajes aún</p>
+                        <p class="text-sm">Envía el primer mensaje para iniciar la conversación</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Barra de Input (fija en la parte inferior) -->
+    <div class="bg-white border-t border-gray-300 px-4 py-3 shadow-lg">
+        <div class="container mx-auto max-w-4xl">
+            <form method="post" action="." class="flex items-center space-x-3">
+                {% csrf_token %}
+                
+                <!-- Input de mensaje -->
+                <div class="flex-1 relative">
+                    {% for field in form %}
+                        {% if field.name == 'content' %}
+                            <input 
+                                type="text" 
+                                name="{{ field.name }}" 
+                                id="{{ field.id_for_label }}"
+                                placeholder="Escribe un mensaje..."
+                                class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                                required
+                            />
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <!-- Botón de enviar -->
+                <button 
+                    type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-all duration-200 transform hover:scale-105 shadow-md"
+                    title="Enviar mensaje"
+                >
+                    <i class="fas fa-paper-plane text-lg"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
     <div 
         x-show="open" 
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
         x-transition.opacity
+        @click.self="open = false"
     >
-        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 class="text-lg font-bold text-red-600">Eliminar mensaje</h2>
-            <p class="text-gray-600 mt-2">¿Estás seguro de que deseas eliminar este mensaje?</p>
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-96 transform transition-all" @click.stop>
+            <div class="text-center mb-4">
+                <div class="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fas fa-trash text-red-600 text-xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900">Eliminar mensaje</h2>
+                <p class="text-gray-600 mt-2">¿Estás seguro de que deseas eliminar este mensaje? Esta acción no se puede deshacer.</p>
+            </div>
             
-            <div class="mt-4 flex justify-end space-x-2">
+            <div class="flex space-x-3">
                 <button 
                     @click="open = false" 
-                    class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
                 >
                     Cancelar
                 </button>
-                <form :action="deleteUrl" method="POST">
+                <form :action="deleteUrl" method="POST" class="flex-1">
                     {% csrf_token %}
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                    <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
                         Eliminar
                     </button>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Formulario para enviar mensajes -->
-    <form method="post" action="." class="mt-6 bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
-        {% csrf_token %}
-        <div class="mb-4">
-            {{ form.as_p }}
-        </div>
-        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition">
-            Enviar mensaje
-        </button>
-    </form>
-    
 </div>
+
+<script>
+    // Auto-scroll al final de los mensajes
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    });
+</script>
 {% endblock %}

@@ -3,40 +3,283 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<main class="container mx-auto py-8">
-    <h1 class="mb-8 text-3xl font-bold text-gray-800">{{ title }}</h1>
+<style>
+    .dropzone {
+        border: 2px dashed #cbd5e0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .dropzone:hover {
+        border-color: #667eea;
+        background-color: #f7fafc;
+    }
+    
+    .dropzone.dragover {
+        border-color: #667eea;
+        background-color: #edf2f7;
+    }
+    
+    .price-input-wrapper {
+        position: relative;
+    }
+    
+    .price-input-wrapper .dollar-sign {
+        position: absolute;
+        left: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 1.125rem;
+        pointer-events: none;
+    }
+    
+    .price-input-wrapper input {
+        padding-left: 2.5rem;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+    }
+</style>
 
-    <form method="post" action="." enctype="multipart/form-data" class="space-y-6 bg-white p-8 rounded-xl shadow-lg">
-        {% csrf_token %}
-
-        <!-- Campos del formulario -->
-        <div class="space-y-4">
-            {{ form.as_p }}
+<main class="container mx-auto py-8 px-4" x-data="formHandler()">
+    <!-- Tarjeta del Formulario -->
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header dentro de la tarjeta -->
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-6">
+            <h1 class="text-3xl font-bold text-white">{{ title }}</h1>
+            <p class="text-purple-100 mt-2">Fill in the details to upload your product</p>
         </div>
 
-        <!-- Errores del formulario -->
-        {% if form.errors or form.non_field_errors %}
-            <div class="mt-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
-                <h2 class="font-semibold text-lg mb-2">There were some errors:</h2>
-                <ul class="list-disc ml-6">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
+        <form method="post" action="." enctype="multipart/form-data" class="p-8">
+            {% csrf_token %}
+
+            <!-- Errores del formulario -->
+            {% if form.errors or form.non_field_errors %}
+                <div class="mb-6 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                        <div>
+                            <h2 class="font-semibold text-lg mb-2">Please correct the following errors:</h2>
+                            <ul class="list-disc ml-6 space-y-1">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Layout de 2 Columnas -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Columna Izquierda (2/3) - Name y Description -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Name -->
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-tag mr-2 text-purple-600"></i>Product Name
+                        </label>
+                        <input 
+                            type="text" 
+                            name="{{ form.name.name }}" 
+                            id="{{ form.name.id_for_label }}"
+                            value="{{ form.name.value|default:'' }}"
+                            class="form-input w-full py-4 px-6 rounded-xl border border-gray-300 transition-all duration-200"
+                            placeholder="e.g., Vintage Leather Jacket"
+                            required
+                        />
+                        {% if form.name.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.name.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-align-left mr-2 text-purple-600"></i>Description
+                        </label>
+                        <textarea 
+                            name="{{ form.description.name }}" 
+                            id="{{ form.description.id_for_label }}"
+                            rows="8"
+                            class="form-input w-full py-4 px-6 rounded-xl border border-gray-300 transition-all duration-200 resize-none"
+                            placeholder="Describe your product in detail..."
+                            required
+                        >{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.description.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Columna Derecha (1/3) - Category, Price, Image -->
+                <div class="space-y-6">
+                    <!-- Category -->
+                    <div>
+                        <label for="{{ form.category.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-folder mr-2 text-purple-600"></i>Category
+                        </label>
+                        <select 
+                            name="{{ form.category.name }}" 
+                            id="{{ form.category.id_for_label }}"
+                            class="form-input w-full py-4 px-6 rounded-xl border border-gray-300 transition-all duration-200"
+                            required
+                        >
+                            <option value="">Select a category</option>
+                            {% for value, label in form.category.field.choices %}
+                                {% if value %}
+                                    <option value="{{ value }}" {% if form.category.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price -->
+                    <div>
+                        <label for="{{ form.price.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-dollar-sign mr-2 text-purple-600"></i>Price
+                        </label>
+                        <div class="price-input-wrapper">
+                            <span class="dollar-sign">$</span>
+                            <input 
+                                type="number" 
+                                name="{{ form.price.name }}" 
+                                id="{{ form.price.id_for_label }}"
+                                value="{{ form.price.value|default:'' }}"
+                                step="0.01"
+                                min="0.01"
+                                class="form-input w-full py-4 px-6 rounded-xl border border-gray-300 transition-all duration-200"
+                                placeholder="0.00"
+                                required
+                            />
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Enter the price in USD</p>
+                    </div>
+
+                    <!-- Image Upload - Dropzone -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-image mr-2 text-purple-600"></i>Product Image
+                        </label>
+                        <div 
+                            class="dropzone rounded-xl p-8 text-center bg-gray-50"
+                            @click="$refs.fileInput.click()"
+                            @dragover.prevent="$el.classList.add('dragover')"
+                            @dragleave.prevent="$el.classList.remove('dragover')"
+                            @drop.prevent="handleDrop($event)"
+                        >
+                            <div x-show="!imagePreview">
+                                <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium mb-1">Click to upload or drag and drop</p>
+                                <p class="text-sm text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                            </div>
+                            <div x-show="imagePreview" class="relative">
+                                <img :src="imagePreview" class="preview-image mx-auto mb-3" />
+                                <p class="text-sm text-gray-600 font-medium" x-text="fileName"></p>
+                                <button 
+                                    type="button"
+                                    @click.stop="clearImage()"
+                                    class="mt-2 text-red-600 hover:text-red-700 text-sm font-medium"
+                                >
+                                    <i class="fas fa-times mr-1"></i>Remove
+                                </button>
+                            </div>
+                        </div>
+                        <input 
+                            type="file" 
+                            name="{{ form.image.name }}" 
+                            id="{{ form.image.id_for_label }}"
+                            accept="image/*"
+                            class="hidden"
+                            x-ref="fileInput"
+                            @change="handleFileSelect($event)"
+                            {% if title == 'New item' %}required{% endif %}
+                        />
+                    </div>
+
+                    <!-- Campo is_sold (solo para Edit) -->
+                    {% if form.is_sold %}
+                        <div class="flex items-center p-4 bg-gray-50 rounded-xl">
+                            <input 
+                                type="checkbox" 
+                                name="{{ form.is_sold.name }}" 
+                                id="{{ form.is_sold.id_for_label }}"
+                                {% if form.is_sold.value %}checked{% endif %}
+                                class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            />
+                            <label for="{{ form.is_sold.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700">
+                                Mark as sold
+                            </label>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
 
-        <!-- Botón de envío -->
-        <div class="mt-6">
-            <button type="submit" class="w-full sm:w-auto px-6 py-3 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium transition duration-300">
-                Submit
-            </button>
-        </div>
-    </form>
+            <!-- Botón de Envío -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                >
+                    <i class="fas fa-check-circle mr-2"></i>Publish Item
+                </button>
+            </div>
+        </form>
+    </div>
 </main>
+
+<script>
+    function formHandler() {
+        return {
+            imagePreview: null,
+            fileName: '',
+            
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.fileName = file.name;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imagePreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+            
+            handleDrop(event) {
+                event.currentTarget.classList.remove('dragover');
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    this.$refs.fileInput.files = dataTransfer.files;
+                    this.handleFileSelect({ target: { files: [file] } });
+                }
+            },
+            
+            clearImage() {
+                this.imagePreview = null;
+                this.fileName = '';
+                this.$refs.fileInput.value = '';
+            }
+        }
+    }
+</script>
 {% endblock %}

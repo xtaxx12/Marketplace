@@ -20,12 +20,116 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <title>{% block title %}{% endblock %} | Tienda Web</title>
     <style>
       html,
       body {
         height: 100%;
         margin: 0;
+        font-family: 'Poppins', sans-serif;
+      }
+      
+      /* Hover effects para tarjetas de productos */
+      .product-card {
+        transition: all 0.3s ease;
+      }
+      
+      .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      
+      .product-card:hover .add-to-cart-btn {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .add-to-cart-btn {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+      }
+      
+      /* Badge de "NUEVO" */
+      .new-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      
+      /* Dropdown de usuario */
+      .user-dropdown {
+        position: relative;
+      }
+      
+      .user-dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 0.5rem;
+        background-color: white;
+        min-width: 200px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        z-index: 50;
+      }
+      
+      .user-dropdown:hover .user-dropdown-content {
+        display: block;
+      }
+      
+      /* Avatar circular */
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      
+      .user-avatar:hover {
+        transform: scale(1.05);
+      }
+      
+      /* Categorías con iconos */
+      .category-card {
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      }
+      
+      .category-card:hover {
+        transform: translateY(-5px);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      .category-card:hover h3,
+      .category-card:hover p {
+        color: white;
+      }
+      
+      .category-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.8;
       }
     </style>
   </head>
@@ -33,67 +137,80 @@
   <body class="bg-gray-100 text-gray-800">
     <div class="flex flex-col min-h-screen">
       <!-- Navbar -->
-      <nav class="bg-gray-900 text-white shadow">
+      <nav class="bg-gray-900 text-white shadow-lg">
         <div
-          class="container mx-auto px-4 py-3 flex items-center justify-between"
+          class="container mx-auto px-4 py-5 flex items-center justify-between"
         >
-          <a href="/" class="text-2xl font-bold hover:text-gray-400"
-            >Tienda Web</a
-          >
+          <a href="/" class="text-3xl font-bold hover:text-purple-400 transition-colors duration-200" style="font-weight: 800; letter-spacing: -0.5px;">
+            <i class="fas fa-store mr-2"></i>Tienda Web
+          </a>
           <!-- Mobile menu button -->
           <button
             id="mobile-menu-button"
             class="lg:hidden block text-white focus:outline-none"
           >
-            <i class="fas fa-bars"></i>
+            <i class="fas fa-bars text-xl"></i>
           </button>
           <!-- Menu -->
           <ul id="mobile-menu" class="hidden lg:flex items-center space-x-6">
             <li>
-              <a href="{% url 'item:new' %}" class="hover:text-gray-400"
-                >New Item</a
+              <a href="{% url 'item:new' %}" class="hover:text-purple-400 transition-colors duration-200 font-medium"
+                ><i class="fas fa-plus-circle mr-1"></i> New Item</a
               >
             </li>
             <li>
-              <a href="{% url 'item:items' %}" class="hover:text-gray-400"
-                >Browse</a
+              <a href="{% url 'item:items' %}" class="hover:text-purple-400 transition-colors duration-200 font-medium"
+                ><i class="fas fa-search mr-1"></i> Browse</a
               >
             </li>
             {% if request.user.is_authenticated %}
             <li>
               <a
                 href="{% url 'conversation:inbox' %}"
-                class="hover:text-gray-400"
-                >Inbox</a
+                class="hover:text-purple-400 transition-colors duration-200 font-medium"
+                ><i class="fas fa-inbox mr-1"></i> Inbox</a
               >
             </li>
             <li>
-              <a href="{% url 'dashboard:index' %}" class="hover:text-gray-400"
-                >Dashboard</a
+              <a href="{% url 'dashboard:index' %}" class="hover:text-purple-400 transition-colors duration-200 font-medium"
+                ><i class="fas fa-tachometer-alt mr-1"></i> Dashboard</a
               >
             </li>
-            <li>
-              <span class="text-sm font-medium">User: {{ user.username }}</span>
-            </li>
-            <li>
-              <a
-                href="{% url 'core:logout' %}"
-                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                >Cerrar Sesión</a
-              >
+            <li class="user-dropdown">
+              <div class="user-avatar">
+                {{ user.username|slice:":1"|upper }}
+              </div>
+              <div class="user-dropdown-content">
+                <div class="px-4 py-3 border-b border-gray-200">
+                  <p class="text-sm text-gray-500">Conectado como</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ user.username }}</p>
+                </div>
+                <a
+                  href="{% url 'dashboard:index' %}"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-user mr-2"></i> Mi Perfil
+                </a>
+                <a
+                  href="{% url 'core:logout' %}"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-t border-gray-200"
+                >
+                  <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                </a>
+              </div>
             </li>
             {% else %}
             <li>
               <a
                 href="{% url 'core:signup' %}"
-                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
                 >Sign Up</a
               >
             </li>
             <li>
               <a
                 href="{% url 'core:login' %}"
-                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
                 >Log In</a
               >
             </li>
@@ -108,56 +225,56 @@
           <li>
             <a
               href="{% url 'item:new' %}"
-              class="block text-white hover:text-gray-400"
-              >New Item</a
+              class="block text-white hover:text-purple-400 transition-colors duration-200"
+              ><i class="fas fa-plus-circle mr-2"></i>New Item</a
             >
           </li>
           <li>
             <a
               href="{% url 'item:items' %}"
-              class="block text-white hover:text-gray-400"
-              >Browse</a
+              class="block text-white hover:text-purple-400 transition-colors duration-200"
+              ><i class="fas fa-search mr-2"></i>Browse</a
             >
           </li>
           {% if request.user.is_authenticated %}
           <li>
             <a
               href="{% url 'conversation:inbox' %}"
-              class="block text-white hover:text-gray-400"
-              >Inbox</a
+              class="block text-white hover:text-purple-400 transition-colors duration-200"
+              ><i class="fas fa-inbox mr-2"></i>Inbox</a
             >
           </li>
           <li>
             <a
               href="{% url 'dashboard:index' %}"
-              class="block text-white hover:text-gray-400"
-              >Dashboard</a
+              class="block text-white hover:text-purple-400 transition-colors duration-200"
+              ><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a
             >
           </li>
-          <li>
-            <span class="block text-sm font-medium text-gray-300"
-              >User: {{ user.username }}</span
+          <li class="border-t border-gray-700 pt-3">
+            <span class="block text-sm font-medium text-gray-400 mb-2"
+              >Conectado como: <span class="text-white">{{ user.username }}</span></span
             >
           </li>
           <li>
             <a
               href="{% url 'core:logout' %}"
-              class="block px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >Cerrar Sesión</a
+              class="block px-4 py-2 border border-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 text-center"
+              ><i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión</a
             >
           </li>
           {% else %}
           <li>
             <a
               href="{% url 'core:signup' %}"
-              class="block px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+              class="block px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 text-center"
               >Sign Up</a
             >
           </li>
           <li>
             <a
               href="{% url 'core:login' %}"
-              class="block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              class="block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-center"
               >Log In</a
             >
           </li>
@@ -171,22 +288,24 @@
       </main>
 
       <!-- Footer -->
-      <footer class="bg-gray-900 text-white text-center py-6">
+      <footer class="bg-gray-900 text-white text-center py-8">
         <div class="container mx-auto">
-          <p class="mb-3 space-x-3">
-            <a href="#" class="text-blue-400 hover:text-blue-300"
+          <p class="mb-4 space-x-4">
+            <a href="#" class="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
               >Política de privacidad</a
             >
-            <a href="#" class="text-blue-400 hover:text-blue-300"
+            <span class="text-gray-600">|</span>
+            <a href="#" class="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
               >Aviso legal</a
             >
+            <span class="text-gray-600">|</span>
             <a
               href="{% url 'core:contact' %}"
-              class="text-blue-400 hover:text-blue-300"
+              class="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
               >Contacto</a
             >
           </p>
-          <p class="text-sm font-medium">Desarrollado por: Joel Rojas</p>
+          <p class="text-sm text-gray-400">Desarrollado por: <span class="font-semibold text-gray-300">Joel Rojas</span></p>
         </div>
       </footer>
     </div>

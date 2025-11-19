@@ -122,7 +122,7 @@ class Item(models.Model):
     category = models.ForeignKey(Category, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='item_images', blank=True, null=True)
     is_sold = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, related_name='items', on_delete=models.CASCADE)
@@ -137,13 +137,19 @@ class Item(models.Model):
             models.Index(fields=['is_sold', 'category', 'created_at']),
             models.Index(fields=['name']),
         ]
+    
+    def clean(self):
+        if self.price is not None and self.price <= 0:
+            raise ValidationError({'price': 'El precio debe ser mayor a 0'})
+        if self.price is not None and self.price > Decimal('99999999.99'):
+            raise ValidationError({'price': 'El precio no puede exceder 99,999,999.99'})
 ```
 
 **Campos**:
 - `category`: Categoría del artículo (FK)
 - `name`: Nombre del producto
 - `description`: Descripción detallada (opcional)
-- `price`: Precio en formato decimal
+- `price`: Precio en formato Decimal (max_digits=10, decimal_places=2)
 - `image`: Imagen del producto (almacenada en media/item_images/)
 - `is_sold`: Estado de venta (True/False)
 - `created_by`: Usuario que creó el artículo (FK)
@@ -163,6 +169,9 @@ class Item(models.Model):
 
 **Validaciones**:
 - `name`: Máximo 255 caracteres
+- `price`: Debe ser mayor a 0 y no exceder 99,999,999.99
+- `price`: Máximo 2 decimales
+- `image`: Máximo 5MB, formatos: jpg, jpeg, png, gif, webp
 - `price`: Debe ser un número válido
 - `image`: Solo archivos de imagen
 
@@ -811,25 +820,65 @@ form = NewItemForm(request.POST, request.FILES)
 
 ### Validación de Imágenes
 
+**Validaciones en Formularios**:
+- Tamaño máximo: 5MB
+- Formatos permitidos: jpg, jpeg, png, gif, webp
+- Validación automática con Pillow
+
 **Pillow** valida automáticamente:
 - Formato de imagen válido
 - Archivo no corrupto
-- Extensiones permitidas: jpg, jpeg, png, gif
+- Integridad de la imagen
 
-### Eliminación de Imágenes
+### Eliminación Automática de Imágenes
+
+**✅ Implementado**: Las imágenes se eliminan automáticamente del sistema de archivos.
 
 **Comportamiento**:
-- Al eliminar Item, la imagen NO se elimina automáticamente
-- Queda huérfana en el sistema de archivos
 
-**Solución Recomendada**:
+1. **Al eliminar un Item**:
+   - La imagen se elimina automáticamente
+   - No quedan archivos huérfanos
+   - Implementado con signal `pre_delete`
+
+2. **Al actualizar la imagen**:
+   - La imagen antigua se elimina automáticamente
+   - Solo se mantiene la nueva imagen
+   - Implementado con signal `pre_save`
+
+3. **Al eliminar sin imagen**:
+   - No genera errores
+   - Funciona normalmente
+
+**Implementación**:
 ```python
-# En el modelo Item
-def delete(self, *args, **kwargs):
-    if self.image:
-        self.image.delete(save=False)
-    super().delete(*args, **kwargs)
+@receiver(pre_delete, sender=Item)
+def delete_item_image_on_delete(sender, instance, **kwargs):
+    """Elimina la imagen cuando se elimina el Item"""
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
+
+@receiver(pre_save, sender=Item)
+def delete_old_image_on_update(sender, instance, **kwargs):
+    """Elimina la imagen antigua al actualizar"""
+    if not instance.pk:
+        return
+    
+    try:
+        old_item = Item.objects.get(pk=instance.pk)
+        if old_item.image and old_item.image != instance.image:
+            if os.path.isfile(old_item.image.path):
+                os.remove(old_item.image.path)
+    except Item.DoesNotExist:
+        pass
 ```
+
+**Beneficios**:
+- ✅ No hay archivos huérfanos
+- ✅ Ahorro de espacio en disco
+- ✅ Gestión automática sin intervención manual
+- ✅ Manejo seguro de errores
 
 ---
 

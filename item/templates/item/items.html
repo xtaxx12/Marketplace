@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load item_filters %}
 
 {% block title %}Items{% endblock %}
 
@@ -36,19 +37,24 @@
         </div>
 
         <div class="col-span-1 md:col-span-3">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {% for item in items %}
-                    <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg">
+                    <div class="product-card bg-white rounded-xl overflow-hidden shadow-md relative">
                         <a href="{% url 'item:detail' item.id %}">
-                            <div>
-                                <img src="{{ item.image.url }}" class="w-full h-40 object-cover object-center rounded-t-xl">
+                            <div class="relative">
+                                <img src="{{ item.image.url }}" class="w-full h-48 object-cover object-center">
                             </div>
 
                             <div class="p-4">
-                                <h2 class="text-xl font-semibold">{{ item.name }}</h2>
-                                <p class="text-gray-500">Price: {{ item.price }}$</p>
+                                <h2 class="text-lg font-bold text-gray-900" style="color: #1a202c;">{{ item.name }}</h2>
+                                <p class="text-2xl font-bold mt-2" style="color: #667eea;">{{ item.price|format_price }}</p>
                             </div>
                         </a>
+                        <div class="add-to-cart-btn px-4 pb-4">
+                            <a href="{% url 'item:detail' item.id %}" class="block w-full text-center py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-200">
+                                <i class="fas fa-shopping-cart mr-2"></i>Ver Detalles
+                            </a>
+                        </div>
                     </div>
                 {% endfor %}
             </div>

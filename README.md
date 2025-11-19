@@ -25,13 +25,15 @@ Sistema de marketplace desarrollado con Django que permite a los usuarios compra
 - 📦 **Gestión de artículos**: Crear, editar, eliminar y buscar productos
 - 💬 **Sistema de mensajería**: Conversaciones entre compradores y vendedores
 - 🏷️ **Categorización**: Organización de productos por categorías
-- 🖼️ **Carga de imágenes**: Soporte para imágenes de productos
+- 🖼️ **Gestión de imágenes**: Carga con validación y eliminación automática
 - 📊 **Dashboard personal**: Panel de control para gestionar publicaciones
 - 🔍 **Búsqueda avanzada**: Filtrado por categoría y texto
 - 📧 **Notificaciones por email**: Sistema de correo integrado
 - 🎨 **Interfaz moderna**: Diseño con Tailwind CSS y Jazzmin Admin
 - 📄 **Paginación optimizada**: Navegación eficiente en listados grandes
 - ⚡ **Índices de BD**: Consultas optimizadas para máximo rendimiento
+- 💰 **Precios precisos**: Validación con Decimal para precisión monetaria
+- 🗑️ **Limpieza automática**: Eliminación automática de archivos huérfanos
 
 ---
 
@@ -127,7 +129,15 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 8. Ejecutar servidor de desarrollo
+### 8. (Opcional) Poblar base de datos con datos de prueba
+
+```bash
+python manage.py seed
+```
+
+Para más información, consulta [SEEDING.md](SEEDING.md)
+
+### 9. Ejecutar servidor de desarrollo
 
 ```bash
 python manage.py runserver
@@ -447,6 +457,18 @@ python manage.py migrate
 
 # Crear superusuario
 python manage.py createsuperuser
+
+# Poblar base de datos con datos de prueba
+python manage.py seed
+
+# Limpiar y poblar base de datos
+python manage.py seed --clear
+
+# Limpiar imágenes huérfanas (ver qué se eliminaría)
+python manage.py cleanup_images --dry-run
+
+# Limpiar imágenes huérfanas (eliminar)
+python manage.py cleanup_images
 
 # Shell interactivo
 python manage.py shell
