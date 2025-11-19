@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from item.models import Category, Item
 from .forms import ConversationMessageForm
 from .models import Conversation, ConversationMessage
+from core.notifications import create_message_notification, create_new_conversation_notification
 
 @login_required
 def new_conversation(request, item_pk):
@@ -29,6 +30,14 @@ def new_conversation(request, item_pk):
             conversation_message.conversation = conversation
             conversation_message.created_by = request.user
             conversation_message.save()
+            
+            # Crear notificación para el vendedor
+            create_new_conversation_notification(
+                recipient=item.created_by,
+                sender=request.user,
+                item_name=item.name,
+                conversation_id=conversation.id
+            )
 
             return redirect('item:detail', pk=item_pk)
     else:
@@ -69,6 +78,15 @@ def detail(request, pk):
             conversation_message.save()
 
             conversation.save()
+            
+            # Crear notificación para el otro usuario
+            for member in conversation.members.all():
+                if member != request.user:
+                    create_message_notification(
+                        recipient=member,
+                        sender=request.user,
+                        conversation_id=conversation.id
+                    )
 
             return redirect('conversation:detail', pk=pk)
     else:

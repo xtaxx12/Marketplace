@@ -75,3 +75,68 @@ def enviar_correo(request):
         'items': items,
     })
     
+
+
+# ============================================
+# VISTAS DE NOTIFICACIONES
+# ============================================
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .models import Notification
+from .notifications import mark_as_read, mark_all_as_read, delete_notification, get_unread_count
+
+@login_required
+def notifications_list(request):
+    """Vista para listar todas las notificaciones del usuario"""
+    notifications = Notification.objects.filter(recipient=request.user)[:50]
+    unread_count = get_unread_count(request.user)
+    
+    return render(request, 'core/notifications.html', {
+        'notifications': notifications,
+        'unread_count': unread_count
+    })
+
+@login_required
+def mark_notification_read(request, notification_id):
+    """Marca una notificación como leída"""
+    if request.method == 'POST':
+        success = mark_as_read(notification_id)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': success})
+        
+        # Si la notificación tiene un link, redirigir allí
+        try:
+            notification = Notification.objects.get(id=notification_id)
+            if notification.link:
+                return redirect(notification.link)
+        except Notification.DoesNotExist:
+            pass
+    
+    return redirect('core:notifications')
+
+@login_required
+def mark_all_notifications_read(request):
+    """Marca todas las notificaciones como leídas"""
+    if request.method == 'POST':
+        count = mark_all_as_read(request.user)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'count': count})
+    
+    return redirect('core:notifications')
+
+@login_required
+def delete_notification_view(request, notification_id):
+    """Elimina una notificación"""
+    if request.method == 'POST':
+        success = delete_notification(notification_id)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': success})
+    
+    return redirect('core:notifications')
+
+@login_required
+def get_notifications_count(request):
+    """API endpoint para obtener el contador de notificaciones no leídas"""
+    count = get_unread_count(request.user)
+    return JsonResponse({'count': count})

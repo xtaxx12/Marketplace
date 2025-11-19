@@ -20,4 +20,11 @@ urlpatterns = [
     path('reset/done/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),  
     
     path('send_email/', views.enviar_correo, name='send_email'),
+    
+    # Notificaciones
+    path('notifications/', views.notifications_list, name='notifications'),
+    path('notifications/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    path('notifications/<int:notification_id>/delete/', views.delete_notification_view, name='delete_notification'),
+    path('api/notifications/count/', views.get_notifications_count, name='notifications_count'),
 ]
