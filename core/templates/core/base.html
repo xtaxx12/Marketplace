@@ -245,18 +245,20 @@
               </div>
             </li>
             {% else %}
+            {% if request.path != '/signup/' %}
             <li>
               <a
                 href="{% url 'core:signup' %}"
-                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
-                >Sign Up</a
+                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-md"
+                >Registrarse</a
               >
             </li>
+            {% endif %}
             <li>
               <a
                 href="{% url 'core:login' %}"
-                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
-                >Log In</a
+                class="px-4 py-2 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-200 font-medium"
+                >Iniciar Sesión</a
               >
             </li>
             {% endif %}
@@ -323,18 +325,20 @@
             >
           </li>
           {% else %}
+          {% if request.path != '/signup/' %}
           <li>
             <a
               href="{% url 'core:signup' %}"
-              class="block px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 text-center"
-              >Sign Up</a
+              class="block px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 text-center font-medium"
+              >Registrarse</a
             >
           </li>
+          {% endif %}
           <li>
             <a
               href="{% url 'core:login' %}"
-              class="block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-center"
-              >Log In</a
+              class="block px-4 py-2 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-200 text-center font-medium"
+              >Iniciar Sesión</a
             >
           </li>
           {% endif %}
@@ -378,9 +382,13 @@
         menuButton.addEventListener("click", () => {
           mobileMenu.classList.toggle("hidden");
         });
-        
-        // Actualizar contador de notificaciones
-        {% if request.user.is_authenticated %}
+      });
+    </script>
+    
+    {% if request.user.is_authenticated %}
+    <script>
+      // Actualizar contador de notificaciones y favoritos
+      document.addEventListener("DOMContentLoaded", function () {
         function updateNotificationCount() {
           fetch('/api/notifications/count/')
             .then(response => response.json())
@@ -434,8 +442,8 @@
         // Actualizar cada 30 segundos
         setInterval(updateNotificationCount, 30000);
         setInterval(updateFavoritesCount, 30000);
-        {% endif %}
       });
     </script>
+    {% endif %}
   </body>
 </html>

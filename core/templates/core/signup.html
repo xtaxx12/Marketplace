@@ -1,49 +1,199 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Sign up{% endblock %}
+{% block title %}Crear Cuenta{% endblock %}
 
 {% block content %}
-<div class="w-1/2 my-6 mx-auto p-6 bg-gray-100 rounded-xl">
-    <h1 class="mb-6 text-3xl">Sign up</h1>
-
-    <form method="post" action=".">
-        {% csrf_token %}
-
-        <div class="mb-3">
-            <label class="inline-block mb-2">Username</label><br>
-            {{ form.username }}
-        </div>
-
-        <div class="mb-3">
-            <label class="inline-block mb-2">Email</label><br>
-            {{ form.email }}
-        </div>
-
-        <div class="mb-3">
-            <label class="inline-block mb-2">Password</label><br>
-            {{ form.password1 }}
-        </div>
-
-        <div class="mb-3">
-            <label class="inline-block mb-2">Repeat password</label><br>
-            {{ form.password2 }}
-        </div>
-
-        {% if form.errors or form.non_field_errors %}
-            <div class="mb-3 p-6 bg-red-100 rounded-xl">
-                {% for field in form %}
-                    {{ field.errors }}
-                {% endfor %}
-
-                {{ form.non_field_errors }}
+<div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+        <!-- Auth Card -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+            <!-- Header -->
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-user-plus text-white text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold text-gray-900">
+                    Crear Cuenta
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Únete a nuestra comunidad de compradores y vendedores
+                </p>
             </div>
-        {% endif %}
 
-        <div class="text-center">
-            <button class="bg-green-500 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg mt-6 text-lg">
-                Submit
-            </button>
+            <!-- Form -->
+            <form method="post" action="." class="space-y-5" x-data="{ showPassword: false, showPassword2: false }">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <div>
+                    <label for="id_username" class="block text-sm font-bold text-gray-700 mb-2">
+                        Nombre de Usuario
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.username.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Email Field -->
+                <div>
+                    <label for="id_email" class="block text-sm font-bold text-gray-700 mb-2">
+                        Correo Electrónico
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.email.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="id_password1" class="block text-sm font-bold text-gray-700 mb-2">
+                        Contraseña
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input 
+                            :type="showPassword ? 'text' : 'password'"
+                            name="password1"
+                            id="id_password1"
+                            class="w-full h-12 pl-11 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                            required
+                        >
+                        <button 
+                            type="button"
+                            @click="showPassword = !showPassword"
+                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition"
+                        >
+                            <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                        </button>
+                    </div>
+                    {% if form.password1.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.password1.errors.0 }}
+                        </p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">
+                        Mínimo 8 caracteres, debe incluir letras y números
+                    </p>
+                </div>
+
+                <!-- Repeat Password Field -->
+                <div>
+                    <label for="id_password2" class="block text-sm font-bold text-gray-700 mb-2">
+                        Confirmar Contraseña
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input 
+                            :type="showPassword2 ? 'text' : 'password'"
+                            name="password2"
+                            id="id_password2"
+                            class="w-full h-12 pl-11 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                            required
+                        >
+                        <button 
+                            type="button"
+                            @click="showPassword2 = !showPassword2"
+                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition"
+                        >
+                            <i :class="showPassword2 ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.password2.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- General Errors -->
+                {% if form.non_field_errors %}
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-red-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    {{ form.non_field_errors.0 }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit"
+                    class="w-full h-12 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Crear Cuenta
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="text-center pt-4 border-t border-gray-200">
+                <p class="text-sm text-gray-600">
+                    ¿Ya tienes una cuenta? 
+                    <a href="{% url 'core:login' %}" class="font-semibold text-purple-600 hover:text-purple-700 transition">
+                        Iniciar Sesión
+                    </a>
+                </p>
+            </div>
         </div>
-    </form>
+
+        <!-- Additional Info -->
+        <p class="mt-6 text-center text-xs text-gray-500">
+            Al crear una cuenta, aceptas nuestros 
+            <a href="#" class="text-purple-600 hover:text-purple-700">Términos de Servicio</a> y 
+            <a href="#" class="text-purple-600 hover:text-purple-700">Política de Privacidad</a>
+        </p>
+    </div>
 </div>
+
+<style>
+    /* Estilos para los inputs del formulario Django */
+    #id_username,
+    #id_email {
+        width: 100%;
+        height: 3rem;
+        padding-left: 2.75rem;
+        padding-right: 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    #id_username:focus,
+    #id_email:focus {
+        outline: none;
+        border-color: transparent;
+        ring: 2px;
+        ring-color: #9333ea;
+    }
+</style>
 {% endblock %}
