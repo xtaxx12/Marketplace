@@ -1,117 +1,210 @@
 {% extends 'core/base.html' %}
 {% load item_filters %}
 
-{% block title %}Items{% endblock %}
+{% block title %}Browse Products{% endblock %}
 
 {% block content %}
-    <div class="pb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-100">
-        <div class="col-span-1 md:col-span-1 px-4">
-            <form method="get" action="{% url 'item:items' %}">
-                <br>
-                <input name="query" class="w-full py-4 px-6 border rounded-xl" type="text" value="{{ query }}" placeholder="Find a bike, a chair or car...">
-                <br>
-                <br>
-                <button class="btn btn-primary" >Search</button>
-            </form>
+    <div class="min-h-screen bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Sidebar -->
+                <aside class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl shadow-md p-6 sticky top-4">
+                        <!-- Search -->
+                        <div class="mb-8">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                                Buscar Productos
+                            </label>
+                            <form method="get" action="{% url 'item:items' %}" class="space-y-4">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fas fa-search text-gray-400"></i>
+                                    </div>
+                                    <input 
+                                        name="query" 
+                                        class="w-full py-3 pl-11 pr-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition" 
+                                        type="text" 
+                                        value="{{ query }}" 
+                                        placeholder="Buscar productos..."
+                                    >
+                                </div>
+                                <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-semibold hover:from-purple-700 hover:to-indigo-700 transition shadow-md">
+                                    <i class="fas fa-search mr-2"></i>Buscar
+                                </button>
+                            </form>
+                        </div>
 
-            <hr class="my-6">
+                        <!-- Categories -->
+                        <div class="mb-8">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                                Categorías
+                            </h3>
+                            <nav class="space-y-1">
+                                {% for category in categories %}
+                                    <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}" 
+                                       class="flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 {% if category.id == category_id %}bg-purple-50 text-purple-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                                        <span>{{ category.name }}</span>
+                                        <span class="text-xs {% if category.id == category_id %}text-purple-600{% else %}text-gray-400{% endif %}">
+                                            {{ category.items.count }}
+                                        </span>
+                                    </a>
+                                {% endfor %}
+                            </nav>
+                        </div>
 
-            <p class="font-semibold">Categories</p>
-
-            <ul>
-                {% for category in categories %}
-                    <li class="py-2 px-2 rounded-xl{% if category.id == category_id %} bg-gray-200{% endif %}">
-                        <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}">{{ category.name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-
-            <hr class="my-6">
-
-            <p class="font-semibold">Clear filters</p>
-
-            <ul>
-                <li><a href="{% url 'item:items' %}" class="mt-2 py-2 px-4 inline-block bg-yellow-500 text rounded-xl text-white">Clear</a></li>
-
-            </ul>
-        </div>
-
-        <div class="col-span-1 md:col-span-3">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {% for item in items %}
-                    <div class="product-card bg-white rounded-xl overflow-hidden shadow-md relative">
-                        {% if request.user.is_authenticated %}
-                        <!-- Botón de favorito -->
-                        <button 
-                            onclick="toggleFavorite({{ item.id }}, this)"
-                            class="favorite-btn absolute top-3 right-3 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200"
-                            data-item-id="{{ item.id }}"
-                            title="Agregar a favoritos"
-                        >
-                            <i class="far fa-heart text-red-500 text-xl"></i>
-                        </button>
-                        {% endif %}
-                        
-                        <a href="{% url 'item:detail' item.id %}">
-                            <div class="relative">
-                                <img src="{{ item.image.url }}" class="w-full h-48 object-cover object-center">
-                            </div>
-
-                            <div class="p-4">
-                                <h2 class="text-lg font-bold text-gray-900" style="color: #1a202c;">{{ item.name }}</h2>
-                                <p class="text-2xl font-bold mt-2" style="color: #667eea;">{{ item.price|format_price }}</p>
-                            </div>
-                        </a>
-                        <div class="add-to-cart-btn px-4 pb-4">
-                            <a href="{% url 'item:detail' item.id %}" class="block w-full text-center py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-200">
-                                <i class="fas fa-shopping-cart mr-2"></i>Ver Detalles
+                        <!-- Clear Filters -->
+                        {% if query or category_id %}
+                        <div class="pt-6 border-t border-gray-200">
+                            <a href="{% url 'item:items' %}" 
+                               class="flex items-center justify-center text-sm text-gray-600 hover:text-purple-600 transition">
+                                <i class="fas fa-redo-alt mr-2 text-xs"></i>
+                                Limpiar filtros
                             </a>
                         </div>
+                        {% endif %}
                     </div>
-                {% endfor %}
+                </aside>
+
+                <!-- Products Grid -->
+                <main class="lg:col-span-3">
+                    <!-- Header -->
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900">
+                                {% if category_id %}
+                                    {% for category in categories %}
+                                        {% if category.id == category_id %}{{ category.name }}{% endif %}
+                                    {% endfor %}
+                                {% elif query %}
+                                    Resultados para "{{ query }}"
+                                {% else %}
+                                    Todos los Productos
+                                {% endif %}
+                            </h1>
+                            <p class="text-gray-600 mt-1">{{ items.paginator.count }} producto{% if items.paginator.count != 1 %}s{% endif %} encontrado{% if items.paginator.count != 1 %}s{% endif %}</p>
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    {% if items %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for item in items %}
+                            <div class="product-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-purple-300 relative group">
+                                <!-- Wishlist Button -->
+                                {% if request.user.is_authenticated %}
+                                <button 
+                                    class="favorite-btn absolute top-3 right-3 z-20 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200"
+                                    data-item-id="{{ item.id }}"
+                                    title="Agregar a favoritos"
+                                >
+                                    <i class="far fa-heart text-red-500 text-lg"></i>
+                                </button>
+                                {% endif %}
+                                
+                                <a href="{% url 'item:detail' item.id %}" class="block">
+                                    <!-- Image -->
+                                    <div class="relative aspect-square overflow-hidden bg-gray-100">
+                                        {% if item.is_sold %}
+                                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+                                            <span class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold">
+                                                VENDIDO
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                        <img src="{{ item.image.url }}" 
+                                             alt="{{ item.name }}" 
+                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div class="p-4">
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem]">
+                                            {{ item.name }}
+                                        </h3>
+                                        
+                                        <!-- Category -->
+                                        <p class="text-xs text-gray-500 mb-2">
+                                            <i class="fas fa-tag mr-1"></i>{{ item.category.name }}
+                                        </p>
+                                        
+                                        <!-- Price -->
+                                        <p class="text-2xl font-extrabold text-purple-600 mb-3">
+                                            {{ item.price|format_price }}
+                                        </p>
+                                    </div>
+                                </a>
+                                
+                                <!-- Add to Cart Button -->
+                                {% if not item.is_sold %}
+                                <div class="px-4 pb-4">
+                                    <a href="{% url 'item:detail' item.id %}" 
+                                       class="block w-full text-center py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                        <i class="fas fa-shopping-cart mr-2"></i>Ver Detalles
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <!-- Empty State -->
+                    <div class="bg-white rounded-2xl shadow-md p-12 text-center">
+                        <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-search text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">No se encontraron productos</h3>
+                        <p class="text-gray-600 mb-6">Intenta ajustar tus filtros o búsqueda</p>
+                        <a href="{% url 'item:items' %}" 
+                           class="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                            Ver todos los productos
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Paginación -->
+                    {% if items.has_other_pages %}
+                    <div class="flex justify-center items-center mt-12 space-x-2">
+                        {% if items.has_previous %}
+                            <a href="?page=1{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
+                               class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                                Primera
+                            </a>
+                            <a href="?page={{ items.previous_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
+                               class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                                Anterior
+                            </a>
+                        {% endif %}
+
+                        <span class="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold">
+                            Página {{ items.number }} de {{ items.paginator.num_pages }}
+                        </span>
+
+                        {% if items.has_next %}
+                            <a href="?page={{ items.next_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
+                               class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                                Siguiente
+                            </a>
+                            <a href="?page={{ items.paginator.num_pages }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
+                               class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                                Última
+                            </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </main>
             </div>
-
-            <!-- Paginación -->
-            {% if items.has_other_pages %}
-                <div class="flex justify-center items-center mt-8 space-x-2">
-                    {% if items.has_previous %}
-                        <a href="?page=1{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
-                           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                            Primera
-                        </a>
-                        <a href="?page={{ items.previous_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
-                           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                            Anterior
-                        </a>
-                    {% endif %}
-
-                    <span class="px-4 py-2 bg-blue-500 text-white rounded-lg">
-                        Página {{ items.number }} de {{ items.paginator.num_pages }}
-                    </span>
-
-                    {% if items.has_next %}
-                        <a href="?page={{ items.next_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
-                           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                            Siguiente
-                        </a>
-                        <a href="?page={{ items.paginator.num_pages }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}" 
-                           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                            Última
-                        </a>
-                    {% endif %}
-                </div>
-            {% endif %}
         </div>
     </div>
 
 {% if request.user.is_authenticated %}
 <script>
-// Verificar favoritos al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     const favoriteButtons = document.querySelectorAll('.favorite-btn');
     
     favoriteButtons.forEach(button => {
         const itemId = button.dataset.itemId;
+        
+        // Verificar si es favorito
         fetch(`/api/favorites/check/${itemId}/`)
             .then(response => response.json())
             .then(data => {
@@ -121,50 +214,51 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon.classList.add('fas');
                 }
             });
+        
+        // Agregar event listener
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const icon = this.querySelector('i');
+            
+            fetch(`/favorites/toggle/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Animar el botón
+                    this.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                    
+                    // Cambiar el ícono
+                    if (data.is_favorite) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        this.title = 'Quitar de favoritos';
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        this.title = 'Agregar a favoritos';
+                    }
+                    
+                    // Actualizar contador
+                    updateFavoritesCount();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
     });
 });
-
-function toggleFavorite(itemId, button) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const icon = button.querySelector('i');
-    
-    fetch(`/favorites/toggle/${itemId}/`, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': '{{ csrf_token }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Animar el botón
-            button.style.transform = 'scale(1.3)';
-            setTimeout(() => {
-                button.style.transform = 'scale(1)';
-            }, 200);
-            
-            // Cambiar el ícono
-            if (data.is_favorite) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                button.title = 'Quitar de favoritos';
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                button.title = 'Agregar a favoritos';
-            }
-            
-            // Actualizar contador
-            updateFavoritesCount();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
 
 function updateFavoritesCount() {
     fetch('/api/favorites/count/')
